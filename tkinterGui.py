@@ -37,8 +37,8 @@ time_max_s= 0.2*20
 energy_max = 100
 
 
-analysisFrame = customtkinter.CTkFrame(root)
-analysisFrame.pack(side=BOTTOM, fill="both", expand=True)
+#analysisFrame = customtkinter.CTkFrame(root)
+#analysisFrame.pack(side=BOTTOM, fill="both", expand=True)
 
 RightPannelFrame = customtkinter.CTkFrame(root)
 RightPannelFrame.pack(side=RIGHT, fill=BOTH, expand=True)
@@ -49,8 +49,14 @@ ConnectionPannel_Frame.pack(side=TOP, fill=BOTH, expand=True)
 ImageFrame = customtkinter.CTkFrame(RightPannelFrame)
 ImageFrame.pack(side=TOP, fill=BOTH, expand=True)
 
+HistogramFrame = customtkinter.CTkFrame(ImageFrame)
+HistogramFrame.pack(side=TOP, fill=BOTH, expand=True)
+
+HitRateFrame = customtkinter.CTkFrame(ImageFrame)
+HitRateFrame.pack(side=BOTTOM, fill=BOTH, expand=True)
 # Create a graphing object
-TKG = Tkinter_Graphing(ImageFrame)
+TKG = Tkinter_Graphing(HistogramFrame)
+TKG_HRC = Tkinter_Graphing(HitRateFrame)
 #Fill with dummy data - make it show some default stuff
 #arr = np.zeros((4,4))
 #arr[1,2] = 1
@@ -63,7 +69,7 @@ class ConnectionPannelContents:
     def __init__(self, master):
         #Variables
         self.COM_NAME = StringVar()
-        self.lbl_COM_name = customtkinter.CTkLabel(master,text='Select the COM port')
+        self.lbl_COM_name = customtkinter.CTkLabel(master,text='Select the COM port: ')
         self.lbl_COM_name.pack(side=LEFT, fill=BOTH)
         self.cb_selCOM = customtkinter.CTkComboBox(master, variable=self.COM_NAME, command= self.COM_changed)
         self.cb_selCOM.configure(values = ["dummy1", "dummy2", "dummy3", "dummy4"])
@@ -75,7 +81,7 @@ class ConnectionPannelContents:
         self.btn_Connect.pack(side=LEFT, fill=BOTH)
         
         self.lbl_device_state = customtkinter.CTkLabel(master,text='Device state')
-        self.lbl_device_state.pack(side=LEFT, fill=BOTH)
+        self.lbl_device_state.pack(side=RIGHT, fill=BOTH)
 
     def Connect_click(self):
         pass
@@ -127,27 +133,28 @@ class AcquisitionSetup:
         #self.tb_maxE.pack(side=LEFT, fill=BOTH, expand=1)
 
 
-        self.btn_sel_acq_path = customtkinter.CTkButton(master, text="Select", command=self.ClusProcess_click)
+        self.btn_sel_acq_path = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
         self.btn_sel_acq_path.pack(side=TOP, fill=BOTH)
 
     def SelectFile_click(self):
         filetypes = (('text files', '*.txt'), ('All files', '*.*'))
-        #Show open file dialog
-        self.clusteredFilePath = fd.askopenfilename(title='Select a measurement file', filetypes=filetypes)
-        
-        self.tb_ClusFilePath["state"] = "normal"
-        self.tb_ClusFilePath.delete(0,END)
-        self.tb_ClusFilePath.insert(0,os.path.split(self.clusteredFilePath)[1]) 
-        self.tb_ClusFilePath["state"] = "disabled"
-
-    def ClusProcess_click(self):      
-        filetypes = (('pickle files', '*.pickle'), ('All files', '*.*'))
         #Show save file dialog
-        processed_fileName = fd.asksaveasfile(initialfile = 'Untitled.pickle', defaultextension=".pickle",filetypes=filetypes)
+        self.clusteredFilePath = fd.asksaveasfile(title='Choose measurement file destination', filetypes=filetypes)
+        
+        self.tb_ClusFilePath.configure(state = "normal")
+        self.tb_ClusFilePath.delete(0,END)
+        self.tb_ClusFilePath.insert(0,os.path.split(self.clusteredFilePath.name)[1]) 
+        self.tb_ClusFilePath.configure(state = "disabled")
+
+    def Acq_StartStop_Click(self):      
+        pass
+        #filetypes = (('pickle files', '*.pickle'), ('All files', '*.*'))
+        #Show save file dialog
+        #processed_fileName = fd.asksaveasfile(initialfile = 'Untitled.pickle', defaultextension=".pickle",filetypes=filetypes)
         #Process
-        global processedData
-        processedData = histogram_matrix_v2(256, 256, self.Max_Energy.get(), self.TimeStep.get())
-        histogram_matrix_v2.getProcessedData(processedData, self.clusteredFilePath, processed_fileName.name)
+        #global processedData
+        #processedData = histogram_matrix_v2(256, 256, self.Max_Energy.get(), self.TimeStep.get())
+        #histogram_matrix_v2.getProcessedData(processedData, self.clusteredFilePath, processed_fileName.name)
 
  
 class ProcessedFileLoad:
@@ -185,21 +192,21 @@ acq_ctrl_box = AcquisitionSetup(CtrlFrame)
 conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame)
 
 # Tabs:
-tabControl = customtkinter.CTkTabview(analysisFrame)#ttk.Notebook(analysisFrame)
-tabControl.add('Basics')#(tab_basic, text ='Basics')
-tabControl.add('Spectral')#(tab_spectral, text ='Spectral')
-tabControl.add('Hit rates')#(tab_hitRates, text ='Hit rates')
-tabControl.pack(side = TOP, expand = 1, fill ="both")
+#tabControl = customtkinter.CTkTabview(analysisFrame)#ttk.Notebook(analysisFrame)
+#tabControl.add('Basics')#(tab_basic, text ='Basics')
+#tabControl.add('Spectral')#(tab_spectral, text ='Spectral')
+#tabControl.add('Hit rates')#(tab_hitRates, text ='Hit rates')
+#tabControl.pack(side = TOP, expand = 1, fill ="both")
 
-tab_basic = tabControl.tab("Basics")
-tab_spectral = tabControl.tab("Spectral")
-tab_hitRates = tabControl.tab("Hit rates")
+#tab_basic = tabControl.tab("Basics")
+#tab_spectral = tabControl.tab("Spectral")
+#tab_hitRates = tabControl.tab("Hit rates")
 
 
 ##########################################################################################################
 ##########################---------Basics tab--------#####################################################
-basics_left = customtkinter.CTkFrame(tab_basic)
-basics_left.pack(side=LEFT, expand=1, fill=BOTH,anchor="w")
+#basics_left = customtkinter.CTkFrame(tab_basic)
+#basics_left.pack(side=LEFT, expand=1, fill=BOTH,anchor="w")
 
 
 class ImgTypeSel:
@@ -234,7 +241,7 @@ class ImgTypeSel:
             #E2.cb_E["state"] = "normal"
             #E3.cb_E["state"] = "normal"
 
-ImgType_checkboxes = ImgTypeSel(basics_left)
+#ImgType_checkboxes = ImgTypeSel(basics_left)
 
 class energySelect:
 
@@ -280,14 +287,14 @@ class energySelect:
           self.sb_E_max_val = self.sb_e_max.get()
 
 # Show energy ranges    
-E1 = energySelect(basics_left)
-E2 = energySelect(basics_left)
-E3 = energySelect(basics_left)
+#E1 = energySelect(basics_left)
+#E2 = energySelect(basics_left)
+#E3 = energySelect(basics_left)
 # Set default image type selection (count)
-ImgType_checkboxes.rb_sel()
+#ImgType_checkboxes.rb_sel()
 
-basics_right = customtkinter.CTkFrame(tab_basic)
-basics_right.pack(side=RIGHT)
+#basics_right = customtkinter.CTkFrame(tab_basic)
+#basics_right.pack(side=RIGHT)
 
 class BasicImshowButtons:
     def __init__(self, master):
@@ -321,12 +328,12 @@ class BasicImshowButtons:
         pass
 
 
-ShowImgButtons = BasicImshowButtons(tab_basic)
+#ShowImgButtons = BasicImshowButtons(tab_basic)
 
 ######################################################################################################
 #######################-----SPECTRAL TAB-----#########################################################
-spect_left = customtkinter.CTkFrame(tab_spectral, width=20)
-spect_left.pack(side=LEFT, fill=BOTH)
+#spect_left = customtkinter.CTkFrame(tab_spectral, width=20)
+#spect_left.pack(side=LEFT, fill=BOTH)
 
 class spectrumSelectionUI:
     
@@ -450,10 +457,10 @@ class spectrumSelectionUI:
                 TKG.show_plot( t, spect)
 
 
-spectSel = spectrumSelectionUI(spect_left, "energy", "Select spectrum type to display:")
+#spectSel = spectrumSelectionUI(spect_left, "energy", "Select spectrum type to display:")
 
-hitRate_left = customtkinter.CTkFrame(tab_hitRates, width=20)
-hitRate_left.pack(side=LEFT, fill=BOTH)
-hitRateSel = spectrumSelectionUI(hitRate_left, "hitRate", "Select hit-rate type to display:")
+#hitRate_left = customtkinter.CTkFrame(tab_hitRates, width=20)
+#hitRate_left.pack(side=LEFT, fill=BOTH)
+#hitRateSel = spectrumSelectionUI(hitRate_left, "hitRate", "Select hit-rate type to display:")
 
 root.mainloop()
