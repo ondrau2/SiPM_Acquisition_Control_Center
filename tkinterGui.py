@@ -44,7 +44,7 @@ RightPannelFrame = customtkinter.CTkFrame(root)
 RightPannelFrame.pack(side=RIGHT, fill=BOTH, expand=True)
 
 ConnectionPannel_Frame = customtkinter.CTkFrame(RightPannelFrame)
-ConnectionPannel_Frame.pack(side=TOP, fill=BOTH, expand=True)
+ConnectionPannel_Frame.pack(side=TOP, fill=BOTH)#, expand=True)
 
 ImageFrame = customtkinter.CTkFrame(RightPannelFrame)
 ImageFrame.pack(side=TOP, expand=False)
