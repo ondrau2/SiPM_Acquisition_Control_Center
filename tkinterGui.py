@@ -47,16 +47,18 @@ ConnectionPannel_Frame = customtkinter.CTkFrame(RightPannelFrame)
 ConnectionPannel_Frame.pack(side=TOP, fill=BOTH, expand=True)
 
 ImageFrame = customtkinter.CTkFrame(RightPannelFrame)
-ImageFrame.pack(side=TOP, fill=BOTH, expand=True)
+ImageFrame.pack(side=TOP, expand=False)
 
 HistogramFrame = customtkinter.CTkFrame(ImageFrame)
-HistogramFrame.pack(side=TOP, fill=BOTH, expand=True)
+HistogramFrame.pack(side=TOP, fill=None, expand=False)
 
-HitRateFrame = customtkinter.CTkFrame(ImageFrame)
-HitRateFrame.pack(side=BOTTOM, fill=BOTH, expand=True)
+#HitRateFrame = customtkinter.CTkFrame(ImageFrame)
+#HitRateFrame.pack(side=TOP, expand=True, fill = BOTH)
+
 # Create a graphing object
 TKG = Tkinter_Graphing(HistogramFrame)
-TKG_HRC = Tkinter_Graphing(HitRateFrame)
+#TKG_HRC = Tkinter_Graphing(HitRateFrame)
+
 #Fill with dummy data - make it show some default stuff
 #arr = np.zeros((4,4))
 #arr[1,2] = 1

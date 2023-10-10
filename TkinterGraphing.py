@@ -10,11 +10,11 @@ class Tkinter_Graphing:
         self.fig, self.ax = plt.subplots()
         # Tkinter Application
         self.frame = tk.Frame(master)
-        self.frame.pack( fill='both', expand=1)
+        self.frame.pack(fill='none', expand=0)# fill='both', expand=1)
 
         # Create Canvas
         self.canvas = FigureCanvasTkAgg(self.fig, master)  
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.NONE, expand=0)#fill=tk.BOTH, expand=1)
         
 
         #self.navBar = tk.NavigationToolbar2Tk(self.canvas, master)
