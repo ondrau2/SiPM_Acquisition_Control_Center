@@ -32,33 +32,37 @@ class STM_serial:
             self.COM_ports.append(port)
         
     def COM_connect(self, COM_NAME):
-        try:
-            self.ser = serial.Serial(port=COM_NAME, baudrate=self.BAUDRATE, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
-        except:
-            print("Error")
+        #try:
+            self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
+        #except:
+        #    print("Error")
     def COM_Receive_data_async(self, queue):
         while (1):
-            #line = (self.ser.readline().decode("utf-8")).split('\r\n')
-            line = random()
+            line = (self.ser.readline().decode("utf-8")).split('\r\n')
+            #line = random()
 
-            print(line)
-            queue.put(line);
-            sleep(1)
+            #print(line[0])
+            queue.put(line[0]);
+            #sleep(1)
 
-    def COM_Read_Data_From_Queue(self, queue):
+    def COM_Read_Data_From_Queue(self, queue, GUI_Queue):
         while True:
             # get a unit of work
             item = queue.get()
             # check for stop
             if item is None:
                 break
+
+            #Give it to the GUI
+            GUI_Queue.put(item)
+
             # report
-            print(f'>got {item}')
-    def COM_Receive_Start(self):
+            print(f'>Reader got {item}')
+    def COM_Receive_Start(self, GUI_queue):
         # create the shared queue
         queue = Queue()
         # start the consumer
-        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,))
+        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue,))
         my_consumer.start()
         # start the producer
         my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,))

@@ -68,7 +68,9 @@ TKG = Tkinter_Graphing(HistogramFrame)
 
 #Serial
 communication = STM_serial(115200)
-STM_serial.COM_Receive_Start(communication)
+communication.COM_connect("COM5")
+gui_queue = Queue()
+STM_serial.COM_Receive_Start(communication,gui_queue)
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
@@ -198,5 +200,16 @@ class ProcessedFileLoad:
 acq_ctrl_box = AcquisitionSetup(CtrlFrame)
 conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame)
 
+def updateData():
+    item = gui_queue.get()
+    timer = root.after(10, updateData)
+    
+    if item is None:
+        pass
+    else:
+        print(f'>GUI got {item}')
+
+
+timer = root.after(10, updateData)
 
 root.mainloop()
