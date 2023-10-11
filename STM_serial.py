@@ -1,0 +1,65 @@
+"""
+dataframe:
+#,STM_ID,data[8]\r\n
+#,STM_ID, data[8]\r\n
+#,STM_ID, data[8]\r\n
+
+data - time in ps
+"""
+
+import serial
+import serial.tools.list_ports
+import numpy as np
+from scipy import signal
+import statistics
+import matplotlib.pyplot as plt
+import warnings
+import datetime
+from time import sleep
+from random import random
+from threading import Thread
+from queue import Queue
+ 
+
+class STM_serial:
+    def __init__(self, BAUDRATE):
+        self.baudrate = 115200
+        self.ports = serial.tools.list_ports.comports()
+        self.COM_ports = []
+        self.ser = None
+        for port, desc, hwid in sorted(self.ports):
+            print("{}: {} [{}]".format(port, desc, hwid))
+            self.COM_ports.append(port)
+        
+    def COM_connect(self, COM_NAME):
+        try:
+            self.ser = serial.Serial(port=COM_NAME, baudrate=self.BAUDRATE, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
+        except:
+            print("Error")
+    def COM_Receive_data_async(self, queue):
+        while (1):
+            #line = (self.ser.readline().decode("utf-8")).split('\r\n')
+            line = random()
+
+            print(line)
+            queue.put(line);
+            sleep(1)
+
+    def COM_Read_Data_From_Queue(self, queue):
+        while True:
+            # get a unit of work
+            item = queue.get()
+            # check for stop
+            if item is None:
+                break
+            # report
+            print(f'>got {item}')
+    def COM_Receive_Start(self):
+        # create the shared queue
+        queue = Queue()
+        # start the consumer
+        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,))
+        my_consumer.start()
+        # start the producer
+        my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,))
+        my_producer.start()

@@ -13,6 +13,7 @@ from SpectImg import *
 from TkinterGraphing import *
 from ImageSpectrumAnalysis import *
 from ImageHitRateAnalysis import *
+from STM_serial import *
 
 matplotlib.use('TkAgg')
 
@@ -64,6 +65,10 @@ TKG = Tkinter_Graphing(HistogramFrame)
 #arr[1,2] = 1
 #arr[0,3] = 2
 #Tkinter_Graphing.show_image(TKG, arr)
+
+#Serial
+communication = STM_serial(115200)
+STM_serial.COM_Receive_Start(communication)
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
