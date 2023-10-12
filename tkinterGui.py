@@ -206,7 +206,7 @@ BUFFER = []
 def updateData():
     global GUI_hist
     
-    TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist)
+    TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
            
     timer = root.after(10000, updateData)
 

@@ -42,12 +42,16 @@ class STM_serial:
     def COM_Receive_data_async(self, queue):
         while (1):
             line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
-            val = int(re.sub(r'[^0-9]', '', line))
+            try:
+                val = int(re.sub(r'[^0-9]', '', line))
+                queue.put(val)
+
+            except:
+                pass
             #line = random()*10000
 
             #print(line[0])
             #queue.put(line[0]);
-            queue.put(val)
             #sleep(1)
 
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue):

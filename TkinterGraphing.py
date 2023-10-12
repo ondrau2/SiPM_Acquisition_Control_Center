@@ -59,3 +59,12 @@ class Tkinter_Graphing:
         Im = self.ax.hist(x, bins=2000, color='b')
         
         self.canvas.draw()
+
+    def show_bar(self, x, y):
+        #clear
+        self.fig.clear()
+        self.ax = self.fig.add_axes([0.1,0.1,0.8,0.8])
+        
+        Im = self.ax.bar(x, y )
+        
+        self.canvas.draw()
