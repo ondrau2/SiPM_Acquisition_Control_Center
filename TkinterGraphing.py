@@ -47,4 +47,15 @@ class Tkinter_Graphing:
         
         self.canvas.draw()
 
- 
+    def show_hist(self, x):
+        #clear
+        self.fig.clear()
+        self.ax = self.fig.add_axes([0.1,0.1,0.8,0.8])
+        #self.ax.clear()
+        #plt.cla()
+        #if(self.fig.axes.__len__()>1):
+        #    self.cb.remove()
+        #self.ax.clear()
+        Im = self.ax.hist(x, bins=2000, color='b')
+        
+        self.canvas.draw()

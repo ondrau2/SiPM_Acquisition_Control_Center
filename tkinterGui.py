@@ -14,6 +14,7 @@ from TkinterGraphing import *
 from ImageSpectrumAnalysis import *
 from ImageHitRateAnalysis import *
 from STM_serial import *
+from Histogram import *
 
 matplotlib.use('TkAgg')
 
@@ -200,16 +201,35 @@ class ProcessedFileLoad:
 acq_ctrl_box = AcquisitionSetup(CtrlFrame)
 conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame)
 
+histogram = np.zeros(10000)
+BUFFER = []
 def updateData():
-    item = gui_queue.get()
-    timer = root.after(10, updateData)
-    
-    if item is None:
-        pass
-    else:
-        print(f'>GUI got {item}')
+    global GUI_hist
+    #while(True):
+        #item = gui_queue.get()
+        #if item is None:
+        #    break
+        #else:
+         #   pass
+    TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist)
+            #BUFFER.append(item)
+            #Give it to the GUI
+            #if(len(BUFFER) >= 1000):    
+                #TKG.show_hist(BUFFER)
+             #   BUFFER.clear()
+
+    timer = root.after(10000, updateData)
+
+        #plt.hist(item, bins=2000, color='b', label='cesium')
+        #plt.hist(list_data, bins=5, color='r', label='neco2')
+        #plt.legend(loc = 'upper left')
+        #plt.xlabel('Time (ns)', fontsize='large')
+        #plt.ylabel('(-)', fontsize='large')
+        #plt.grid()
+        #plt.xlim(0,10000)
+        #plt.show()
 
 
-timer = root.after(10, updateData)
+timer = root.after(10000, updateData)
 
 root.mainloop()

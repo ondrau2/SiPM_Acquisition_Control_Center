@@ -19,6 +19,7 @@ from time import sleep
 from random import random
 from threading import Thread
 from queue import Queue
+from Histogram import *
  
 
 class STM_serial:
@@ -38,26 +39,35 @@ class STM_serial:
         #    print("Error")
     def COM_Receive_data_async(self, queue):
         while (1):
-            line = (self.ser.readline().decode("utf-8")).split('\r\n')
-            #line = random()
+            #line = (self.ser.readline().decode("utf-8")).split('\r\n')
+            line = random()*10000
 
             #print(line[0])
-            queue.put(line[0]);
+            #queue.put(line[0]);
+            queue.put(line)
             #sleep(1)
 
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue):
+        BUFFER = []
+        global GUI_hist
+        #global hist
         while True:
             # get a unit of work
             item = queue.get()
             # check for stop
             if item is None:
                 break
+            else:
+                BUFFER.append(item)
+                #Give it to the GUI
+                if(len(BUFFER) >= 1000):
+                    GUI_hist.addToHist(BUFFER)
+                    BUFFER.clear()
+                #GUI_Queue.put(item)
 
-            #Give it to the GUI
-            GUI_Queue.put(item)
 
             # report
-            print(f'>Reader got {item}')
+            #print(f'>Reader got {item}')
     def COM_Receive_Start(self, GUI_queue):
         # create the shared queue
         queue = Queue()
