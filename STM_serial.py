@@ -21,6 +21,7 @@ from threading import Thread, Event
 from queue import Queue
 from Histogram import *
 import re
+from MeasStore import *
  
 TARGET_PATH = r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data'
 stopEvent = Event()
@@ -41,7 +42,7 @@ class STM_serial:
             self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
         #except:
         #    print("Error")
-    def CM_close(self):
+    def COM_close(self):
         self.ser.close()
     def COM_Receive_data_async(self, queue, stopEvent: Event):
         while (1):
@@ -71,8 +72,8 @@ class STM_serial:
         BUFFER = []
         global GUI_hist
 
-        ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        path = TARGET_PATH + '\\' + str(ct) + '.txt'
+        #ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        #path = TARGET_PATH + '\\' + str(ct) + '.txt'
 
         #global hist
         while True:
@@ -85,12 +86,10 @@ class STM_serial:
                 BUFFER.append(item)
                 #Give it to the GUI
                 if(len(BUFFER) >= 100):
-                    with open(path,'a', newline='\n') as file:
-                        file.write(','.join(str(i) for i in BUFFER))
-
+                    DataSave.SaveBuffer(BUFFER)
                     GUI_hist.addToHist(BUFFER)
                     BUFFER.clear()
-                #GUI_Queue.put(item)
+
             if(stopEvent.is_set()):
                 break
 
@@ -99,6 +98,7 @@ class STM_serial:
     def COM_Receive_Start(self, GUI_queue):
         # create the shared queue
         queue = Queue()
+        stopEvent.clear()
         # start the consumer
         my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue, stopEvent, ))
         my_consumer.start()

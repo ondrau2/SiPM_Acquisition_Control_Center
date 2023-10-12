@@ -15,6 +15,7 @@ from ImageSpectrumAnalysis import *
 from ImageHitRateAnalysis import *
 from STM_serial import *
 from Histogram import *
+from MeasStore import *
 
 matplotlib.use('TkAgg')
 
@@ -72,7 +73,6 @@ communication = STM_serial(115200)
 #communication.COM_connect("COM5")
 gui_queue = Queue()
 
-stopEvent = Event()
 #STM_serial.COM_Receive_Start(communication,gui_queue)
 
 ################################################################################################
@@ -97,6 +97,7 @@ class ConnectionPannelContents:
         
         self.lbl_device_state = customtkinter.CTkLabel(master,text='Device state')
         self.lbl_device_state.pack(side=RIGHT, fill=BOTH)
+        self.Refresh_click()
 
     def Connect_click(self):
         global communication
@@ -143,6 +144,7 @@ class AcquisitionSetup:
     def __init__(self, master):
         #Variables
         self.clusteredFilePath = ""
+        self.AcqRunning = False
         #UI
         self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='Select measurement file name:')
         self.lbl_SelClusFile.pack(side=TOP, fill=BOTH, pady=(30,0))
@@ -179,6 +181,8 @@ class AcquisitionSetup:
         self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
     def SelectFile_click(self):
+        global DataSave
+
         filetypes = (('text files', '*.txt'), ('All files', '*.*'))
         #Show save file dialog
         self.clusteredFilePath = fd.asksaveasfile(title='Choose measurement file destination', filetypes=filetypes)
@@ -188,6 +192,8 @@ class AcquisitionSetup:
         self.tb_ClusFilePath.insert(0,os.path.split(self.clusteredFilePath.name)[1]) 
         self.tb_ClusFilePath.configure(state = "disabled")
 
+        DataSave.ChangeTargetAddress(self.clusteredFilePath.name)
+
     def Acq_StartStop_Click(self):      
         global communication
         try:
@@ -196,19 +202,14 @@ class AcquisitionSetup:
             state = None
 
         if(state != None):
-            communication.COM_Receive_Start(gui_queue)
-            self.btn_start_acq.configure(text = "Stop acquisition")
-        else:
-            communication.COM_Receive_Stop(stopEvent)
-            self.btn_start_acq.configure(text = "Start acquisition")
-
-        #filetypes = (('pickle files', '*.pickle'), ('All files', '*.*'))
-        #Show save file dialog
-        #processed_fileName = fd.asksaveasfile(initialfile = 'Untitled.pickle', defaultextension=".pickle",filetypes=filetypes)
-        #Process
-        #global processedData
-        #processedData = histogram_matrix_v2(256, 256, self.Max_Energy.get(), self.TimeStep.get())
-        #histogram_matrix_v2.getProcessedData(processedData, self.clusteredFilePath, processed_fileName.name)
+            if(self.AcqRunning == False):
+                communication.COM_Receive_Start(gui_queue)
+                self.AcqRunning = True
+                self.btn_start_acq.configure(text = "Stop acquisition")
+            else: 
+                communication.COM_Receive_Stop()
+                self.AcqRunning = False
+                self.btn_start_acq.configure(text = "Start acquisition")
 
  
 class ProcessedFileLoad:
@@ -252,7 +253,7 @@ def updateData():
     
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
            
-    timer = root.after(10000, updateData)
+    timer = root.after(1000, updateData)
 
         #plt.hist(item, bins=2000, color='b', label='cesium')
         #plt.hist(list_data, bins=5, color='r', label='neco2')
@@ -264,6 +265,6 @@ def updateData():
         #plt.show()
 
 
-timer = root.after(10000, updateData)
+timer = root.after(1000, updateData)
 
 root.mainloop()
