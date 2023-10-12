@@ -69,9 +69,11 @@ TKG = Tkinter_Graphing(HistogramFrame)
 
 #Serial
 communication = STM_serial(115200)
-communication.COM_connect("COM5")
+#communication.COM_connect("COM5")
 gui_queue = Queue()
-STM_serial.COM_Receive_Start(communication,gui_queue)
+
+stopEvent = Event()
+#STM_serial.COM_Receive_Start(communication,gui_queue)
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
@@ -87,6 +89,9 @@ class ConnectionPannelContents:
         self.cb_selCOM.pack(side=LEFT, fill=BOTH)
         self.cb_selCOM.bind('<<ComboBoxSelected>>', self.COM_changed)
 
+        self.btn_Refresh = customtkinter.CTkButton(master, text="Refresh", command=self.Refresh_click)
+        self.btn_Refresh.pack(side=LEFT, fill=BOTH)
+
         self.btn_Connect = customtkinter.CTkButton(master, text="Connect", command=self.Connect_click)
         self.btn_Connect.pack(side=LEFT, fill=BOTH)
         
@@ -94,11 +99,38 @@ class ConnectionPannelContents:
         self.lbl_device_state.pack(side=RIGHT, fill=BOTH)
 
     def Connect_click(self):
-        pass
+        global communication
+        state = None
+        try:
+            state = communication.ser.is_open
+        except:
+            state = None
 
-    def COM_changed(self):
-        pass
-    
+        if( state == None):
+            if(communication.COM_NAME != None):
+                communication.COM_connect(str(communication.COM_NAME))
+        else: 
+            communication.COM_close()
+
+
+        try:
+            state = communication.ser.is_open
+        except:
+            state = None
+
+        if(state != None):
+            self.btn_Connect.configure(text="Close")
+        else: 
+            self.btn_Connect.configure(text="Connect")
+
+    def COM_changed(self, port):
+        global communication
+        communication.COM_NAME = self.cb_selCOM.get()
+
+    def Refresh_click(self):
+        global communication
+        communication = STM_serial(115200)
+        self.cb_selCOM.configure(values = communication.COM_ports)
 
 
 
@@ -143,8 +175,8 @@ class AcquisitionSetup:
         #self.tb_maxE.pack(side=LEFT, fill=BOTH, expand=1)
 
 
-        self.btn_sel_acq_path = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
-        self.btn_sel_acq_path.pack(side=TOP, fill=BOTH)
+        self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
+        self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
     def SelectFile_click(self):
         filetypes = (('text files', '*.txt'), ('All files', '*.*'))
@@ -157,7 +189,19 @@ class AcquisitionSetup:
         self.tb_ClusFilePath.configure(state = "disabled")
 
     def Acq_StartStop_Click(self):      
-        pass
+        global communication
+        try:
+            state = communication.ser.is_open
+        except:
+            state = None
+
+        if(state != None):
+            communication.COM_Receive_Start(gui_queue)
+            self.btn_start_acq.configure(text = "Stop acquisition")
+        else:
+            communication.COM_Receive_Stop(stopEvent)
+            self.btn_start_acq.configure(text = "Start acquisition")
+
         #filetypes = (('pickle files', '*.pickle'), ('All files', '*.*'))
         #Show save file dialog
         #processed_fileName = fd.asksaveasfile(initialfile = 'Untitled.pickle', defaultextension=".pickle",filetypes=filetypes)

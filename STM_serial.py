@@ -17,12 +17,13 @@ import warnings
 import datetime
 from time import sleep
 from random import random
-from threading import Thread
+from threading import Thread, Event
 from queue import Queue
 from Histogram import *
 import re
  
 TARGET_PATH = r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data'
+stopEvent = Event()
 
 class STM_serial:
     def __init__(self, BAUDRATE):
@@ -30,6 +31,7 @@ class STM_serial:
         self.ports = serial.tools.list_ports.comports()
         self.COM_ports = []
         self.ser = None
+        self.COM_NAME = None
         for port, desc, hwid in sorted(self.ports):
             print("{}: {} [{}]".format(port, desc, hwid))
             self.COM_ports.append(port)
@@ -39,22 +41,33 @@ class STM_serial:
             self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
         #except:
         #    print("Error")
-    def COM_Receive_data_async(self, queue):
+    def CM_close(self):
+        self.ser.close()
+    def COM_Receive_data_async(self, queue, stopEvent: Event):
         while (1):
-            line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
             try:
-                val = int(re.sub(r'[^0-9]', '', line))
-                queue.put(val)
-
+                state = self.ser.is_open
             except:
-                pass
+                state = None
+            if(state != None):
+                line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
+                try:
+                    val = int(re.sub(r'[^0-9]', '', line))
+                    queue.put(val)
+
+                except:
+                    pass
+
+            if(stopEvent.is_set()):
+                break
+
             #line = random()*10000
 
             #print(line[0])
             #queue.put(line[0]);
             #sleep(1)
 
-    def COM_Read_Data_From_Queue(self, queue, GUI_Queue):
+    def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
         BUFFER = []
         global GUI_hist
 
@@ -71,14 +84,15 @@ class STM_serial:
             else:
                 BUFFER.append(item)
                 #Give it to the GUI
-                if(len(BUFFER) >= 1000):
+                if(len(BUFFER) >= 100):
                     with open(path,'a', newline='\n') as file:
                         file.write(','.join(str(i) for i in BUFFER))
 
                     GUI_hist.addToHist(BUFFER)
                     BUFFER.clear()
                 #GUI_Queue.put(item)
-
+            if(stopEvent.is_set()):
+                break
 
             # report
             #print(f'>Reader got {item}')
@@ -86,8 +100,11 @@ class STM_serial:
         # create the shared queue
         queue = Queue()
         # start the consumer
-        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue,))
+        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue, stopEvent, ))
         my_consumer.start()
         # start the producer
-        my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,))
+        my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,stopEvent, ))
         my_producer.start()
+
+    def COM_Receive_Stop(self):
+        stopEvent.set()
