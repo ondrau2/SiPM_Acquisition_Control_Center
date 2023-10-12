@@ -11,7 +11,7 @@ class Histogram:
     def addToHist(self, buffer):
         for value in buffer:
             ValIndex = int(np.floor(value/self.bin))
-            if(ValIndex<self.maximum):
+            if(ValIndex<self.size):
                 self.hist[ValIndex] = self.hist[ValIndex] + 1
             else:
                 self.hist[self.size-1] = self.hist[self.size-1] + 1

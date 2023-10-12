@@ -20,7 +20,9 @@ from random import random
 from threading import Thread
 from queue import Queue
 from Histogram import *
+import re
  
+TARGET_PATH = r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data'
 
 class STM_serial:
     def __init__(self, BAUDRATE):
@@ -39,17 +41,22 @@ class STM_serial:
         #    print("Error")
     def COM_Receive_data_async(self, queue):
         while (1):
-            #line = (self.ser.readline().decode("utf-8")).split('\r\n')
-            line = random()*10000
+            line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
+            val = int(re.sub(r'[^0-9]', '', line))
+            #line = random()*10000
 
             #print(line[0])
             #queue.put(line[0]);
-            queue.put(line)
+            queue.put(val)
             #sleep(1)
 
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue):
         BUFFER = []
         global GUI_hist
+
+        ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        path = TARGET_PATH + '\\' + str(ct) + '.txt'
+
         #global hist
         while True:
             # get a unit of work
@@ -61,6 +68,9 @@ class STM_serial:
                 BUFFER.append(item)
                 #Give it to the GUI
                 if(len(BUFFER) >= 1000):
+                    with open(path,'a', newline='\n') as file:
+                        file.write(','.join(str(i) for i in BUFFER))
+
                     GUI_hist.addToHist(BUFFER)
                     BUFFER.clear()
                 #GUI_Queue.put(item)

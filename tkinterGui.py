@@ -205,19 +205,9 @@ histogram = np.zeros(10000)
 BUFFER = []
 def updateData():
     global GUI_hist
-    #while(True):
-        #item = gui_queue.get()
-        #if item is None:
-        #    break
-        #else:
-         #   pass
+    
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist)
-            #BUFFER.append(item)
-            #Give it to the GUI
-            #if(len(BUFFER) >= 1000):    
-                #TKG.show_hist(BUFFER)
-             #   BUFFER.clear()
-
+           
     timer = root.after(10000, updateData)
 
         #plt.hist(item, bins=2000, color='b', label='cesium')
