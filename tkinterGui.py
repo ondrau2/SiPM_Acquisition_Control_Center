@@ -29,6 +29,7 @@ from matplotlib.backends.backend_tkagg import (
 customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 root = customtkinter.CTk()
+root.title("SiPM Acquisition Control")
 
 ###############################################################################
 #################################----VARIABLES-----############################
@@ -203,6 +204,7 @@ class AcquisitionSetup:
 
         if(state != None):
             if(self.AcqRunning == False):
+                communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get())
                 communication.COM_Receive_Start(gui_queue)
                 self.AcqRunning = True
                 self.btn_start_acq.configure(text = "Stop acquisition")
