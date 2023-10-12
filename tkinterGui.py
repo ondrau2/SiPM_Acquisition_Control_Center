@@ -29,6 +29,7 @@ from matplotlib.backends.backend_tkagg import (
 customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 root = customtkinter.CTk()
+#root.iconbitmap("C:/Users/klesa/Documents/ZCU/INNMEDSCAN/python/SiPM_Acquisition_Control_Center-master/INNMEDSCAN_logo.ico")
 root.title("SiPM Acquisition Control")
 
 ###############################################################################
