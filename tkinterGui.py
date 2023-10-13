@@ -121,7 +121,10 @@ class ConnectionPannelContents:
             state = None
 
         if(state != None):
-            self.btn_Connect.configure(text="Close")
+            if(state == True):
+                self.btn_Connect.configure(text="Close")
+            else: 
+                self.btn_Connect.configure(text="Connect")
         else: 
             self.btn_Connect.configure(text="Connect")
 
@@ -204,7 +207,8 @@ class AcquisitionSetup:
 
         if(state != None):
             if(self.AcqRunning == False):
-                communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get())
+                communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get().encode("utf-8"))
+                
                 communication.COM_Receive_Start(gui_queue)
                 self.AcqRunning = True
                 self.btn_start_acq.configure(text = "Stop acquisition")
@@ -212,6 +216,7 @@ class AcquisitionSetup:
                 communication.COM_Receive_Stop()
                 self.AcqRunning = False
                 self.btn_start_acq.configure(text = "Start acquisition")
+                GUI_hist.clearHist()
 
  
 class ProcessedFileLoad:
