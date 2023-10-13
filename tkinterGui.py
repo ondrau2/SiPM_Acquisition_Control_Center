@@ -113,7 +113,10 @@ class ConnectionPannelContents:
             if(communication.COM_NAME != None):
                 communication.COM_connect(str(communication.COM_NAME))
         else: 
-            communication.COM_close()
+            if(state == True):
+                communication.COM_close()
+            else: 
+                communication.COM_connect(str(communication.COM_NAME))
 
 
         try:
