@@ -188,6 +188,18 @@ class AcquisitionSetup:
         self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
         self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
+    #Hit count info:
+    class HitCntView:
+        def __init__(self, master, CH):
+            self.Hit_CNT = IntVar()
+            hitInfo = customtkinter.CTkFrame(master)
+            hitInfo.pack(side=BOTTOM, fill=BOTH)
+
+            self.lbl_Hit_cnt = customtkinter.CTkLabel(hitInfo, text= CH + " hits: ")
+            self.lbl_Hit_cnt.pack(side=LEFT)
+            self.tb_hit_val = customtkinter.CTkEntry(hitInfo, textvariable=self.Hit_CNT)
+            self.tb_hit_val.pack(side=LEFT, fill=BOTH, expand=1)
+
     def SelectFile_click(self):
         global DataSave
 
@@ -255,6 +267,10 @@ class ProcessedFileLoad:
         processedData = pickle.load(picklefile)
 
 acq_ctrl_box = AcquisitionSetup(CtrlFrame)
+hitCnt_ch3_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH3")
+hitCnt_ch2_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH2")
+hitCnt_ch1_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH1")
+
 conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame)
 
 histogram = np.zeros(10000)
