@@ -6,8 +6,8 @@ class MeasStore:
         self.FilePath = path #+ '\\' + str(self.ct) + '.txt'
 
 
-    def SaveBuffer(self, buff):
-        with open(self.FilePath,'a', newline='\n') as file:
+    def SaveBuffer(self, buff, channel):
+        with open(self.FilePath + channel,'a', newline='\n') as file:
             file.write(','.join(str(i) for i in buff))
 
     def ChangeTargetAddress(self, newFilePath):

@@ -22,9 +22,17 @@ from queue import Queue
 from Histogram import *
 import re
 from MeasStore import *
- 
+from dataclasses import dataclass
+
 TARGET_PATH = r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data'
 stopEvent = Event()
+
+@dataclass
+class detector_event:
+    channel: int 
+    duration: int
+
+ 
 
 class STM_serial:
     def __init__(self, BAUDRATE):
@@ -53,9 +61,16 @@ class STM_serial:
             if(state != None):
                 line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
                 try:
-                    val = int(re.sub(r'[^0-9]', '', line))
-                    queue.put(val)
-
+                    #Filter by channel (TIMA, TIMB, TIMC)
+                    if("TIMA" in line):
+                        val = detector_event(1, int(re.sub(r'[^0-9]', '', line)))
+                        queue.put(val)
+                    elif("TIMB" in line):
+                        val = detector_event(2, int(re.sub(r'[^0-9]', '', line)))
+                        queue.put(val)
+                    elif("TIMC" in line):
+                        val = detector_event(3, int(re.sub(r'[^0-9]', '', line)))
+                        queue.put(val)
                 except:
                     pass
 
@@ -69,7 +84,9 @@ class STM_serial:
             #sleep(1)
 
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
-        BUFFER = []
+        BUFFER_Ch1 = []
+        BUFFER_Ch2 = []
+        BUFFER_Ch3 = []
         global GUI_hist
 
         #ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -83,12 +100,29 @@ class STM_serial:
             if item is None:
                 break
             else:
-                BUFFER.append(item)
-                #Give it to the GUI
-                if(len(BUFFER) >= 100):
-                    DataSave.SaveBuffer(BUFFER)
-                    GUI_hist.addToHist(BUFFER)
-                    BUFFER.clear()
+                if(item.channel == 1):
+                    BUFFER_Ch1.append(item.duration)
+                    #Give it to the GUI
+                    if(len(BUFFER_Ch1) >= 100):
+                        DataSave.SaveBuffer(BUFFER_Ch1, "_CH1")
+                        GUI_hist.addToHist(BUFFER_Ch1)
+                        BUFFER_Ch1.clear()
+                elif(item.channel == 2):
+                    BUFFER_Ch2.append(item.duration)
+                    #Give it to the GUI
+                    if(len(BUFFER_Ch2) >= 100):
+                        DataSave.SaveBuffer(BUFFER_Ch2, "_CH2")
+                        GUI_hist.addToHist(BUFFER_Ch2)
+                        BUFFER_Ch2.clear()
+                elif(item.channel == 3):
+                    BUFFER_Ch3.append(item.duration)
+                    #Give it to the GUI
+                    if(len(BUFFER_Ch3) >= 100):
+                        DataSave.SaveBuffer(BUFFER_Ch3, "_CH3")
+                        GUI_hist.addToHist(BUFFER_Ch3)
+                        BUFFER_Ch3.clear()
+
+                
 
             if(stopEvent.is_set()):
                 break
