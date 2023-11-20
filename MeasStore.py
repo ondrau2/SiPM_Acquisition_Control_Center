@@ -8,7 +8,8 @@ class MeasStore:
 
     def SaveBuffer(self, buff, channel):
         with open(self.FilePath + channel,'a', newline='\n') as file:
-            file.write(','.join(str(i) for i in buff))
+            file.write('\n'.join(str(i) for i in buff))
+            file.write('\n')
 
     def ChangeTargetAddress(self, newFilePath):
         self.ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")

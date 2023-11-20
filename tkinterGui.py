@@ -191,7 +191,7 @@ class AcquisitionSetup:
     #Hit count info:
     class HitCntView:
         def __init__(self, master, CH):
-            self.Hit_CNT = IntVar()
+            self.Hit_CNT = IntVar(value=0) 
             hitInfo = customtkinter.CTkFrame(master)
             hitInfo.pack(side=BOTTOM, fill=BOTH)
 
@@ -199,6 +199,11 @@ class AcquisitionSetup:
             self.lbl_Hit_cnt.pack(side=LEFT)
             self.tb_hit_val = customtkinter.CTkEntry(hitInfo, textvariable=self.Hit_CNT)
             self.tb_hit_val.pack(side=LEFT, fill=BOTH, expand=1)
+
+        def setHitCount(self, hitCNT):
+            self.Hit_CNT = hitCNT
+            self.tb_hit_val.delete(0,tk.END)
+            self.tb_hit_val.insert(0,hitCNT)
 
     def SelectFile_click(self):
         global DataSave
@@ -225,6 +230,7 @@ class AcquisitionSetup:
             if(self.AcqRunning == False):
                 communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get().encode("utf-8"))
                 
+                GUI_hitcnts.clearCounters()
                 communication.COM_Receive_Start(gui_queue)
                 self.AcqRunning = True
                 self.btn_start_acq.configure(text = "Stop acquisition")
@@ -280,9 +286,10 @@ def updateData():
     
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
 
-    hitCnt_ch1_view.Hit_CNT = GUI_hitcnts.CH1
-    hitCnt_ch2_view.Hit_CNT = GUI_hitcnts.CH2
-    hitCnt_ch3_view.Hit_CNT = GUI_hitcnts.CH3
+    hitCnt_ch1_view.setHitCount(GUI_hitcnts.CH1)
+    hitCnt_ch2_view.setHitCount(GUI_hitcnts.CH2)
+    hitCnt_ch3_view.setHitCount(GUI_hitcnts.CH3)
+   
 
     timer = root.after(1000, updateData)
 
