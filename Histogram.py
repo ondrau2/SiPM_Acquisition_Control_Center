@@ -18,4 +18,23 @@ class Histogram:
     def clearHist(self):
         self.hist = np.zeros(self.size)
 
+class HitCounts:
+    def __init__(self):
+        self.CH1 = 0
+        self.CH2 = 0
+        self.CH3 = 0
+    def clearCounters(self):
+        self.CH1 = 0
+        self.CH2 = 0
+        self.CH3 = 0
+    def addCount(self, channel, value):
+        if(channel == 1):
+           self.CH1 = self.CH1 + value
+        elif(channel == 2):
+           self.CH2 = self.CH2 + value
+        elif(channel == 3):
+           self.CH3 = self.CH3 + value
+
 GUI_hist = Histogram(1000,10000)
+
+GUI_hitcnts = HitCounts()

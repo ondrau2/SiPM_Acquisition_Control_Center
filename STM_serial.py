@@ -107,20 +107,23 @@ class STM_serial:
                         DataSave.SaveBuffer(BUFFER_Ch1, "_CH1")
                         GUI_hist.addToHist(BUFFER_Ch1)
                         BUFFER_Ch1.clear()
+                    GUI_hitcnts.addCount(1, 1)
                 elif(item.channel == 2):
                     BUFFER_Ch2.append(item.duration)
                     #Give it to the GUI
                     if(len(BUFFER_Ch2) >= 100):
                         DataSave.SaveBuffer(BUFFER_Ch2, "_CH2")
                         GUI_hist.addToHist(BUFFER_Ch2)
-                        BUFFER_Ch2.clear()
+                        BUFFER_Ch2.clear()                   
+                    GUI_hitcnts.addCount(2, 1)
                 elif(item.channel == 3):
                     BUFFER_Ch3.append(item.duration)
                     #Give it to the GUI
                     if(len(BUFFER_Ch3) >= 100):
                         DataSave.SaveBuffer(BUFFER_Ch3, "_CH3")
                         GUI_hist.addToHist(BUFFER_Ch3)
-                        BUFFER_Ch3.clear()
+                        BUFFER_Ch3.clear()                    
+                    GUI_hitcnts.addCount(3, 1)
 
                 
 

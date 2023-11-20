@@ -279,7 +279,11 @@ def updateData():
     global GUI_hist
     
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
-           
+
+    hitCnt_ch1_view.Hit_CNT = GUI_hitcnts.CH1
+    hitCnt_ch2_view.Hit_CNT = GUI_hitcnts.CH2
+    hitCnt_ch3_view.Hit_CNT = GUI_hitcnts.CH3
+
     timer = root.after(1000, updateData)
 
         #plt.hist(item, bins=2000, color='b', label='cesium')
