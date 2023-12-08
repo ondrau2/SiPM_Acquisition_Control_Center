@@ -16,6 +16,7 @@ from ImageHitRateAnalysis import *
 from STM_serial import *
 from Histogram import *
 from MeasStore import *
+import CTRL_MSG
 
 matplotlib.use('TkAgg')
 
@@ -101,6 +102,12 @@ class ConnectionPannelContents:
         self.lbl_device_state.pack(side=RIGHT, fill=BOTH)
         self.Refresh_click()
 
+    def updateDeviceState(self, alive):
+        if(alive == True):
+            self.lbl_device_state.configure(text = 'Device running')
+        else:
+            self.lbl_device_state.configure(text = 'Device N/A')
+    
     def Connect_click(self):
         global communication
         state = None
@@ -127,6 +134,10 @@ class ConnectionPannelContents:
         if(state != None):
             if(state == True):
                 self.btn_Connect.configure(text="Close")
+
+                #Start the reception
+                communication.COM_Receive_Start(gui_queue)
+
             else: 
                 self.btn_Connect.configure(text="Connect")
         else: 
@@ -188,22 +199,23 @@ class AcquisitionSetup:
         self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
         self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
-    #Hit count info:
-    class HitCntView:
+    #DAC info:
+    class DAC_view:
         def __init__(self, master, CH):
-            self.Hit_CNT = IntVar(value=0) 
-            hitInfo = customtkinter.CTkFrame(master)
-            hitInfo.pack(side=BOTTOM, fill=BOTH)
+            self.DAC_voltage = IntVar(value=0) 
+            DAC_info = customtkinter.CTkFrame(master)
+            DAC_info.pack(side=BOTTOM, fill=BOTH)
 
-            self.lbl_Hit_cnt = customtkinter.CTkLabel(hitInfo, text= CH + " hits: ")
-            self.lbl_Hit_cnt.pack(side=LEFT)
-            self.tb_hit_val = customtkinter.CTkEntry(hitInfo, textvariable=self.Hit_CNT)
-            self.tb_hit_val.pack(side=LEFT, fill=BOTH, expand=1)
+            self.lbl_dac_val = customtkinter.CTkLabel(DAC_info, text= CH )
+            self.lbl_dac_val.pack(side=LEFT)
+            self.tb_dac_val = customtkinter.CTkLabel(DAC_info, text=str(self.DAC_voltage))
+            self.tb_dac_val.pack(side=LEFT, fill=BOTH, expand=1)
 
-        def setHitCount(self, hitCNT):
-            self.Hit_CNT = hitCNT
-            self.tb_hit_val.delete(0,tk.END)
-            self.tb_hit_val.insert(0,hitCNT)
+        def set_DAC_val(self, DAC_val):
+            self.DAC_voltage = DAC_val
+            self.tb_dac_val.configure(text = str(DAC_val))
+            #self.tb_dac_val.delete(0,tk.END)
+            #self.tb_dac_val.insert(0,self.DAC_voltage)
 
     def SelectFile_click(self):
         global DataSave
@@ -240,6 +252,15 @@ class AcquisitionSetup:
                 self.btn_start_acq.configure(text = "Start acquisition")
                 GUI_hist.clearHist()
 
+    def updateAcqStatus(self, board_Rx_ack_state):
+        if(self.AcqRunning != board_Rx_ack_state):
+            #Measurement status not in agreement
+            self.AcqRunning = board_Rx_ack_state
+            if(self.AcqRunning == True):
+                self.btn_start_acq.configure(text = "Stop acquisition")
+            else:
+                self.btn_start_acq.configure(text = "Start acquisition")
+
  
 class ProcessedFileLoad:
     def __init__(self, master):
@@ -273,9 +294,9 @@ class ProcessedFileLoad:
         processedData = pickle.load(picklefile)
 
 acq_ctrl_box = AcquisitionSetup(CtrlFrame)
-hitCnt_ch3_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH3")
-hitCnt_ch2_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH2")
-hitCnt_ch1_view = acq_ctrl_box.HitCntView(CtrlFrame, "CH1")
+dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
+dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")
+dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
 
 conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame)
 
@@ -286,10 +307,17 @@ def updateData():
     
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
 
-    hitCnt_ch1_view.setHitCount(GUI_hitcnts.CH1)
-    hitCnt_ch2_view.setHitCount(GUI_hitcnts.CH2)
-    hitCnt_ch3_view.setHitCount(GUI_hitcnts.CH3)
+    #Update DACs
+    dac_ch1_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
+    dac_ch2_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
+    dac_ch3_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
    
+    #Update Acq status
+    acq_ctrl_box.updateAcqStatus(CTRL_MSG.CTRL_MSG.measRunning)
+
+    #Update device status
+    CTRL_MSG.boardAliveWDG()
+    conn_ctrl_box.updateDeviceState(CTRL_MSG.CTRL_MSG.boardAlive)
 
     timer = root.after(1000, updateData)
 
@@ -301,6 +329,8 @@ def updateData():
         #plt.grid()
         #plt.xlim(0,10000)
         #plt.show()
+
+
 
 
 timer = root.after(1000, updateData)

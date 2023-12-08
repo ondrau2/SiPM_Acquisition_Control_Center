@@ -15,6 +15,7 @@ import statistics
 import matplotlib.pyplot as plt
 import warnings
 import datetime
+import os
 from time import sleep
 from random import random
 from threading import Thread, Event
@@ -23,8 +24,10 @@ from Histogram import *
 import re
 from MeasStore import *
 from dataclasses import dataclass
+import SerialMessage
+import CTRL_MSG
 
-TARGET_PATH = r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data'
+TARGET_PATH = os.path.expanduser('~/Documents')
 stopEvent = Event()
 
 @dataclass
@@ -53,40 +56,32 @@ class STM_serial:
     def COM_close(self):
         self.ser.close()
     def COM_Receive_data_async(self, queue, stopEvent: Event):
+        RxMsg = SerialMessage.SerialMessage()
+
         while (1):
             try:
                 state = self.ser.is_open
             except:
                 state = None
             if(state != None):
-                line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
-                try:
-                    #Filter by channel (TIMA, TIMB, TIMC)
-                    if("TIMA" in line):
-                        val = detector_event(1, int(re.sub(r'[^0-9]', '', line)))
-                        queue.put(val)
-                    elif("TIMB" in line):
-                        val = detector_event(2, int(re.sub(r'[^0-9]', '', line)))
-                        queue.put(val)
-                    elif("TIMC" in line):
-                        val = detector_event(3, int(re.sub(r'[^0-9]', '', line)))
-                        queue.put(val)
-                except:
-                    pass
+                bytesToRead = self.ser.inWaiting()
+                if(bytesToRead > 0):
+                    #line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
+                    data =  self.ser.read(7)
+
+                    ##Add to buffer and check if complete
+                    if(RxMsg.AddRxBytesRoBuffer(data, 7)==True):
+                        #Put to queue
+                        queue.put(RxMsg)
 
             if(stopEvent.is_set()):
                 break
 
-            #line = random()*10000
-
-            #print(line[0])
-            #queue.put(line[0]);
-            #sleep(1)
 
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
-        BUFFER_Ch1 = []
-        BUFFER_Ch2 = []
-        BUFFER_Ch3 = []
+        BUFFER_Meas = []
+        BUFFER_CTRL = []
+
         global GUI_hist
 
         #ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
@@ -100,33 +95,20 @@ class STM_serial:
             if item is None:
                 break
             else:
-                if(item.channel == 1):
-                    BUFFER_Ch1.append(item.duration)
+                if(item.header == SerialMessage.RxMsgID.measured_pulse_val):
+                    BUFFER_Meas.append(item.data)
                     #Give it to the GUI
-                    if(len(BUFFER_Ch1) >= 100):
-                        DataSave.SaveBuffer(BUFFER_Ch1, "_CH1")
-                        GUI_hist.addToHist(BUFFER_Ch1)
-                        BUFFER_Ch1.clear()
+                    if(len(BUFFER_Meas) >= 100):
+                        DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
+                        GUI_hist.addToHist(BUFFER_Meas)
+                        BUFFER_Meas.clear()
                     GUI_hitcnts.addCount(1, 1)
-                elif(item.channel == 2):
-                    BUFFER_Ch2.append(item.duration)
-                    #Give it to the GUI
-                    if(len(BUFFER_Ch2) >= 100):
-                        DataSave.SaveBuffer(BUFFER_Ch2, "_CH2")
-                        GUI_hist.addToHist(BUFFER_Ch2)
-                        BUFFER_Ch2.clear()                   
-                    GUI_hitcnts.addCount(2, 1)
-                elif(item.channel == 3):
-                    BUFFER_Ch3.append(item.duration)
-                    #Give it to the GUI
-                    if(len(BUFFER_Ch3) >= 100):
-                        DataSave.SaveBuffer(BUFFER_Ch3, "_CH3")
-                        GUI_hist.addToHist(BUFFER_Ch3)
-                        BUFFER_Ch3.clear()                    
-                    GUI_hitcnts.addCount(3, 1)
-
+                else:
+                    BUFFER_CTRL.append(item)
+                    #Give it to the GUI thread
+                    CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
+                    BUFFER_CTRL.clear()                   
                 
-
             if(stopEvent.is_set()):
                 break
 
