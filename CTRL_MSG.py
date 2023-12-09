@@ -35,10 +35,10 @@ def handle_Rx_CTRL_Msg(header, data):
         HB_handle(data[3])
 
     if(header == SerialMessage.RxMsgID.meas_start_ack.value):
-        pass
+        CTRL_MSG.measRunning = True
 
     if(header == SerialMessage.RxMsgID.meas_stop_ack.value):
-        pass
+        CTRL_MSG.measRunning = False
 
     if(header == SerialMessage.RxMsgID.DAC_set_resp.value):
         if(data[2]==DAC_CH_A_ID):
@@ -66,6 +66,20 @@ def build_DAC_set_request(ch_num, value):
     dec_val = np.round(np.double(value)*1000)
     msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
     msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+
+    msg.getCRC8()
+
+    return msg.buildByteArr()
+
+def MeasurementStart_Stop():
+    msg = SerialMessage.SerialMessage()
+
+    msg.startSymbol = 0x55
+
+    if(CTRL_MSG.measRunning == False):
+        msg.header = SerialMessage.TxMsgID.meas_start_req
+    else:
+        msg.header = SerialMessage.TxMsgID.meas_stop_req
 
     msg.getCRC8()
 

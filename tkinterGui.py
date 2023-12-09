@@ -238,34 +238,37 @@ class AcquisitionSetup:
         DataSave.ChangeTargetAddress(self.clusteredFilePath.name)
 
     def Acq_StartStop_Click(self):      
-        global communication
+        #global communication
         try:
             state = communication.ser.is_open
         except:
             state = None
 
         if(state != None):
+            tx_arr = MeasurementStart_Stop()
+            communication.transmitt_data(tx_arr)
+
             if(self.AcqRunning == False):
-                communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get().encode("utf-8"))
+         #       communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get().encode("utf-8"))
                 
                 GUI_hitcnts.clearCounters()
-                communication.COM_Receive_Start(gui_queue)
+         #       communication.COM_Receive_Start(gui_queue)
                 self.AcqRunning = True
                 self.btn_start_acq.configure(text = "Stop acquisition")
             else: 
-                communication.COM_Receive_Stop()
+         #      communication.COM_Receive_Stop()
                 self.AcqRunning = False
                 self.btn_start_acq.configure(text = "Start acquisition")
                 GUI_hist.clearHist()
 
     def updateAcqStatus(self, board_Rx_ack_state):
-        if(self.AcqRunning != board_Rx_ack_state):
-            #Measurement status not in agreement
-            self.AcqRunning = board_Rx_ack_state
-            if(self.AcqRunning == True):
-                self.btn_start_acq.configure(text = "Stop acquisition")
-            else:
-                self.btn_start_acq.configure(text = "Start acquisition")
+        #print(str(board_Rx_ack_state))
+        if(board_Rx_ack_state == True):
+            self.btn_start_acq.configure(text = "Stop acquisition")
+        else:
+            self.btn_start_acq.configure(text = "Start acquisition")
+        
+        self.AcqRunning = board_Rx_ack_state
 
  
 class ProcessedFileLoad:
