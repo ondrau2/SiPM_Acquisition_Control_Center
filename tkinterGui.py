@@ -16,7 +16,7 @@ from ImageHitRateAnalysis import *
 from STM_serial import *
 from Histogram import *
 from MeasStore import *
-import CTRL_MSG
+from CTRL_MSG import *
 
 matplotlib.use('TkAgg')
 
@@ -175,7 +175,6 @@ class AcquisitionSetup:
         self.btn_sel_clusFile.pack(side=LEFT, fill=BOTH)
 
         self.NF_period = IntVar()
-        self.Comp_lvl = DoubleVar()
         filePeriodSpecFrame = customtkinter.CTkFrame(master)
         filePeriodSpecFrame.pack(side=TOP, fill=BOTH)
         self.lbl_paramsSel = customtkinter.CTkLabel(filePeriodSpecFrame, text="New file period: ")
@@ -183,22 +182,29 @@ class AcquisitionSetup:
         self.tb_NF_period = customtkinter.CTkEntry(filePeriodSpecFrame, textvariable=self.NF_period)
         self.tb_NF_period.pack(side=LEFT, fill=BOTH, expand=1)
 
-        paramSpecFrame = customtkinter.CTkFrame(master)
-        paramSpecFrame.pack(side=TOP, fill=BOTH)
-
-        self.lbl_Comp_lvl = customtkinter.CTkLabel(paramSpecFrame, text="Comp. level: ")
-        self.lbl_Comp_lvl.pack(side=LEFT)
-        self.tb_Comp_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.Comp_lvl)
-        self.tb_Comp_lvl.pack(side=LEFT, fill=BOTH, expand=1)
-        #self.lbl_maxE = customtkinter.CTkLabel(energy_max_Frame, text="Max E:")
-        #self.lbl_maxE.pack(side=LEFT)
-        #self.tb_maxE = customtkinter.CTkEntry(energy_max_Frame, textvariable=self.Max_Energy)
-        #self.tb_maxE.pack(side=LEFT, fill=BOTH, expand=1)
-
 
         self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
         self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
+    #DAC set
+    class DAC_set:
+        def __init__(self, master, channel_lbl, channel_num):
+            self.Comp_lvl = DoubleVar()
+            self.CH_num = channel_num
+            paramSpecFrame = customtkinter.CTkFrame(master)
+            paramSpecFrame.pack(side=TOP, fill=BOTH)
+            self.lbl_Comp_lvl = customtkinter.CTkLabel(paramSpecFrame, text=str(channel_lbl) )
+            self.lbl_Comp_lvl.pack(side=LEFT)
+            self.tb_Comp_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.Comp_lvl)
+            self.tb_Comp_lvl.pack(side=LEFT, fill=BOTH, expand=1)
+
+            self.btn_start_acq = customtkinter.CTkButton(paramSpecFrame, text="Set", command=self.SetDAC)
+            self.btn_start_acq.pack(side=LEFT, fill=BOTH)
+
+        def SetDAC(self):
+            tx_arr = build_DAC_set_request(self.CH_num, self.Comp_lvl.get())
+            communication.transmitt_data(tx_arr)
+            
     #DAC info:
     class DAC_view:
         def __init__(self, master, CH):
@@ -208,7 +214,7 @@ class AcquisitionSetup:
 
             self.lbl_dac_val = customtkinter.CTkLabel(DAC_info, text= CH )
             self.lbl_dac_val.pack(side=LEFT)
-            self.tb_dac_val = customtkinter.CTkLabel(DAC_info, text=str(self.DAC_voltage))
+            self.tb_dac_val = customtkinter.CTkLabel(DAC_info, text=str(self.DAC_voltage.get()))
             self.tb_dac_val.pack(side=LEFT, fill=BOTH, expand=1)
 
         def set_DAC_val(self, DAC_val):
@@ -294,6 +300,11 @@ class ProcessedFileLoad:
         processedData = pickle.load(picklefile)
 
 acq_ctrl_box = AcquisitionSetup(CtrlFrame)
+
+DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1)
+DAC_B_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC B', 2)
+DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3)
+
 dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
 dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")
 dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
@@ -308,16 +319,16 @@ def updateData():
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
 
     #Update DACs
-    dac_ch1_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
-    dac_ch2_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
-    dac_ch3_view.set_DAC_val(CTRL_MSG.CTRL_MSG.DAC_A_val)
-   
+    dac_ch1_view.set_DAC_val(CTRL_MSG.DAC_A_val)
+    dac_ch2_view.set_DAC_val(CTRL_MSG.DAC_B_val)
+    dac_ch3_view.set_DAC_val(CTRL_MSG.DAC_C_val)
+
     #Update Acq status
-    acq_ctrl_box.updateAcqStatus(CTRL_MSG.CTRL_MSG.measRunning)
+    acq_ctrl_box.updateAcqStatus(CTRL_MSG.measRunning)
 
     #Update device status
-    CTRL_MSG.boardAliveWDG()
-    conn_ctrl_box.updateDeviceState(CTRL_MSG.CTRL_MSG.boardAlive)
+    boardAliveWDG()
+    conn_ctrl_box.updateDeviceState(CTRL_MSG.boardAlive)
 
     timer = root.after(1000, updateData)
 

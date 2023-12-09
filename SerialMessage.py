@@ -55,6 +55,8 @@ class SerialMessage:
         crc = 0
         data = self.data
         size = np.size(data)
+
+        crc = crc_table[crc ^ self.header.value]
         for i in range(0,size):
             crc = crc_table[crc ^ data[i]]
         self.crc8 = crc
@@ -68,7 +70,15 @@ class SerialMessage:
         return crc
     
     def buildByteArr(self):
-        dataArr = np.array(self.startSymbol, self.header, self.data, self.crc8)
+        dataArr = np.zeros(7, dtype='uint8')
+        dataArr[0] = self.startSymbol
+        dataArr[1] = self.header.value
+        dataArr[2] = self.data[0]
+        dataArr[3] = self.data[1]
+        dataArr[4] = self.data[2]
+        dataArr[5] = self.data[3]
+        dataArr[6] = self.crc8
+
         return dataArr
     
     def checkRawMsgFormat(self, data):

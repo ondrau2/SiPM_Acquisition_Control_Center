@@ -1,12 +1,3 @@
-"""
-dataframe:
-#,STM_ID,data[8]\r\n
-#,STM_ID, data[8]\r\n
-#,STM_ID, data[8]\r\n
-
-data - time in ps
-"""
-
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -55,6 +46,10 @@ class STM_serial:
         #    print("Error")
     def COM_close(self):
         self.ser.close()
+
+    def transmitt_data(self, data):
+        self.ser.write(data)
+
     def COM_Receive_data_async(self, queue, stopEvent: Event):
         RxMsg = SerialMessage.SerialMessage()
 

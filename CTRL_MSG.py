@@ -42,12 +42,31 @@ def handle_Rx_CTRL_Msg(header, data):
 
     if(header == SerialMessage.RxMsgID.DAC_set_resp.value):
         if(data[2]==DAC_CH_A_ID):
-            CTRL_MSG.DAC_A_val = int.from_bytes(np.array([data(1), data(0)], byteorder = 'little'))
+            CTRL_MSG.DAC_A_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
         elif(data[2]==DAC_CH_B_ID):
-            CTRL_MSG.DAC_B_val = int.from_bytes(np.array([data(1), data(0)], byteorder = 'little'))
+            CTRL_MSG.DAC_B_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
         elif(data[2]==DAC_CH_C_ID):
-            CTRL_MSG.DAC_C_val = int.from_bytes(np.array([data(1), data(0)], byteorder = 'little'))
+            CTRL_MSG.DAC_C_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
     if(header == SerialMessage.RxMsgID.proc_type_ack.value):
         CTRL_MSG.processingType = data(0)
 
     
+def build_DAC_set_request(ch_num, value):
+    msg = SerialMessage.SerialMessage()
+
+    msg.startSymbol = 0x55
+
+    if(ch_num == 1):
+        msg.header = SerialMessage.TxMsgID.DAC_A_set
+    elif(ch_num == 2):
+        msg.header = SerialMessage.TxMsgID.DAC_B_set
+    elif(ch_num == 3):
+        msg.header = SerialMessage.TxMsgID.DAC_C_set
+
+    dec_val = np.round(np.double(value)*1000)
+    msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
+    msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+
+    msg.getCRC8()
+
+    return msg.buildByteArr()
