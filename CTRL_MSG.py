@@ -50,57 +50,57 @@ def handle_Rx_CTRL_Msg(header, data):
     if(header == SerialMessage.RxMsgID.proc_type_ack.value):
         CTRL_MSG.processingType = data[0]
 
+class CmdRespBuild:   
+    def build_DAC_set_request(ch_num, value):
+        msg = SerialMessage.SerialMessage()
     
-def build_DAC_set_request(ch_num, value):
-    msg = SerialMessage.SerialMessage()
-
-    msg.startSymbol = 0x55
-
-    if(ch_num == 1):
-        msg.header = SerialMessage.TxMsgID.DAC_A_set
-    elif(ch_num == 2):
-        msg.header = SerialMessage.TxMsgID.DAC_B_set
-    elif(ch_num == 3):
-        msg.header = SerialMessage.TxMsgID.DAC_C_set
-
-    dec_val = np.round(np.double(value)*1000)
-    msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
-    msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
-
-    msg.getCRC8()
-
-    return msg.buildByteArr()
-
-def MeasurementStart_Stop():
-    msg = SerialMessage.SerialMessage()
-
-    msg.startSymbol = 0x55
-
-    if(CTRL_MSG.measRunning == False):
-        msg.header = SerialMessage.TxMsgID.meas_start_req
-    else:
-        msg.header = SerialMessage.TxMsgID.meas_stop_req
-
-    msg.getCRC8()
-
-    return msg.buildByteArr()
-
-def build_processing_type_request(type):
-    msg = SerialMessage.SerialMessage()
-
-    msg.startSymbol = 0x55
-
-    msg.header = SerialMessage.TxMsgID.processing_type
-
-    if(type == 'raw_TOT'):
-        msg.data[0] = SerialMessage.PulseProcesssingTypes.raw_TOT.value
-    elif(type == 'exponential_fit'):
-        msg.data[0] = SerialMessage.PulseProcesssingTypes.exponential_fit.value
-    elif(type == '[NA] linear_fit'):
-        msg.data[0] = SerialMessage.PulseProcesssingTypes.linear_fit.value
-    elif(type == '[NA] NN'):
-        msg.data[0] = SerialMessage.PulseProcesssingTypes.NN.value
-
-    msg.getCRC8()
-
-    return msg.buildByteArr()
+        msg.startSymbol = 0x55
+    
+        if(ch_num == 1):
+            msg.header = SerialMessage.TxMsgID.DAC_A_set
+        elif(ch_num == 2):
+            msg.header = SerialMessage.TxMsgID.DAC_B_set
+        elif(ch_num == 3):
+            msg.header = SerialMessage.TxMsgID.DAC_C_set
+    
+        dec_val = np.round(np.double(value)*1000)
+        msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
+        msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+    
+    def MeasurementStart_Stop():
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+    
+        if(CTRL_MSG.measRunning == False):
+            msg.header = SerialMessage.TxMsgID.meas_start_req
+        else:
+            msg.header = SerialMessage.TxMsgID.meas_stop_req
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+    
+    def build_processing_type_request(type):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+    
+        msg.header = SerialMessage.TxMsgID.processing_type
+    
+        if(type == 'raw_TOT'):
+            msg.data[0] = SerialMessage.PulseProcesssingTypes.raw_TOT.value
+        elif(type == 'exponential_fit'):
+            msg.data[0] = SerialMessage.PulseProcesssingTypes.exponential_fit.value
+        elif(type == '[NA] linear_fit'):
+            msg.data[0] = SerialMessage.PulseProcesssingTypes.linear_fit.value
+        elif(type == '[NA] NN'):
+            msg.data[0] = SerialMessage.PulseProcesssingTypes.NN.value
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()

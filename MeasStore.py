@@ -15,4 +15,3 @@ class MeasStore:
         self.ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
         self.FilePath = newFilePath # + '\\' + str(self.ct) + '.txt'
 
-DataSave = MeasStore(r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data')

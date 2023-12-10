@@ -29,16 +29,23 @@ class detector_event:
  
 
 class STM_serial:
-    def __init__(self, BAUDRATE):
+    def __init__(self, BAUDRATE, DataSave):
         self.baudrate = 115200
         self.ports = serial.tools.list_ports.comports()
         self.COM_ports = []
         self.ser = None
         self.COM_NAME = None
+        self.DataSave = DataSave
         for port, desc, hwid in sorted(self.ports):
-            print("{}: {} [{}]".format(port, desc, hwid))
+            #print("{}: {} [{}]".format(port, desc, hwid))
             self.COM_ports.append(port)
         
+    def refresh(self):
+        self.COM_ports = []
+        for port, desc, hwid in sorted(self.ports):
+            #print("{}: {} [{}]".format(port, desc, hwid))
+            self.COM_ports.append(port)
+
     def COM_connect(self, COM_NAME):
         #try:
             self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
@@ -95,7 +102,7 @@ class STM_serial:
                     BUFFER_Meas.append(measuredVal)
                     #Give it to the GUI
                     if(len(BUFFER_Meas) >= 100):
-                        DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
+                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
                     GUI_hitcnts.addCount(1, 1)
