@@ -91,7 +91,8 @@ class STM_serial:
                 break
             else:
                 if(item.header == SerialMessage.RxMsgID.measured_pulse_val):
-                    BUFFER_Meas.append(item.data)
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+                    BUFFER_Meas.append(measuredVal)
                     #Give it to the GUI
                     if(len(BUFFER_Meas) >= 100):
                         DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
@@ -99,10 +100,10 @@ class STM_serial:
                         BUFFER_Meas.clear()
                     GUI_hitcnts.addCount(1, 1)
                 else:
-                    BUFFER_CTRL.append(item)
+                    #BUFFER_CTRL.append(item)
                     #Give it to the GUI thread
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
-                    BUFFER_CTRL.clear()                   
+                    #BUFFER_CTRL.clear()                   
                 
             if(stopEvent.is_set()):
                 break
