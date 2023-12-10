@@ -13,8 +13,8 @@ from ClusteredFileProcessing_v2 import *
 from TkinterGraphing import *
 #from ImageSpectrumAnalysis import *
 #from ImageHitRateAnalysis import *
-from ConnectionPannelContents import *
-from AcquisitionSetup import *
+import GUI_lib.ConnectionPannelContents as CONN_GUI
+import GUI_lib.AcquisitionSetup as ACQ_GUI
 from STM_serial import *
 from Histogram import *
 from MeasStore import *
@@ -63,9 +63,6 @@ ImageFrame.pack(side=TOP, expand=False)
 HistogramFrame = customtkinter.CTkFrame(ImageFrame)
 HistogramFrame.pack(side=TOP, fill=None, expand=False)
 
-#HitRateFrame = customtkinter.CTkFrame(ImageFrame)
-#HitRateFrame.pack(side=TOP, expand=True, fill = BOTH)
-
 ###############################################################################
 ##############################----GRAPH WINDOW-----############################
 TKG = Tkinter_Graphing(HistogramFrame)
@@ -77,7 +74,7 @@ CtrlFrame = customtkinter.CTkFrame(root)
 CtrlFrame.pack(side=LEFT, fill=BOTH, expand=1)
 
 ##Add the main object
-acq_ctrl_box = AcquisitionSetup(CtrlFrame, DataSave)
+acq_ctrl_box = ACQ_GUI.AcquisitionSetup(CtrlFrame, DataSave)
 
 ##Add the DAC control
 DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1, communication, CmdRespBuild)
@@ -88,7 +85,7 @@ DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3, communication, CmdRespBu
 proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, CmdRespBuild)
 
 ##Add the acquisition button
-acqBtn = AcquisitionSetup.acquisitionButton(CtrlFrame, communication, CmdRespBuild, GUI_hist)
+acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, CmdRespBuild, GUI_hist)
 
 ##Add the DAC views
 dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
@@ -97,7 +94,7 @@ dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
-conn_ctrl_box = ConnectionPannelContents(ConnectionPannel_Frame, communication, gui_queue)
+conn_ctrl_box = CONN_GUI.ConnectionPannelContents(ConnectionPannel_Frame, communication, gui_queue)
 
 ################################################################################################
 ####################################-----GUI REFRESH-----#######################################
