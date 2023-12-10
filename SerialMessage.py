@@ -44,6 +44,12 @@ class TxMsgID(Enum):
     DAC_C_set = 5		    ## DAC channel C voltage set 
     processing_type = 6	    ## Type of the processing change request 
 
+class PulseProcesssingTypes(Enum):
+    raw_TOT = 0			    ## Only ToT evaluation 
+    exponential_fit = 1 	## Fit exponential function 
+    linear_fit = 2			## Not implemented 
+    NN = 3					## Not implemented 
+
 class SerialMessage:
     def __init__(self):
         self.startSymbol = 0x55

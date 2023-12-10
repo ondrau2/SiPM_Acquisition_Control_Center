@@ -186,6 +186,22 @@ class AcquisitionSetup:
         self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
         self.btn_start_acq.pack(side=TOP, fill=BOTH)
 
+    class processingType:
+        def __init__(self, master) -> None:
+            procTypeFrame = customtkinter.CTkFrame(master)
+            procTypeFrame.pack(side=TOP, fill=BOTH)
+            self.ProcType = StringVar()
+            self.lbl_prompt = customtkinter.CTkLabel(procTypeFrame,text='Processing method: ')
+            self.lbl_prompt.pack(side=LEFT, fill=BOTH)
+            self.cb_selProc = customtkinter.CTkComboBox(procTypeFrame, variable=self.ProcType, command= self.ProcTypeChanged)
+            self.cb_selProc.configure(values = ["raw_TOT", "exponential_fit", "[NA] linear_fit", "[NA] NN"])
+            self.cb_selProc.configure(state = 'readonly')
+            self.cb_selProc.pack(side=RIGHT, fill=BOTH)
+            self.cb_selProc.bind('<<ComboBoxSelected>>', self.ProcTypeChanged)
+        def ProcTypeChanged(self, dummy):
+            procTypeSel = self.cb_selProc.get()
+            tx_arr = build_processing_type_request(procTypeSel)
+            communication.transmitt_data(tx_arr)
     #DAC set
     class DAC_set:
         def __init__(self, master, channel_lbl, channel_num):
@@ -307,6 +323,8 @@ acq_ctrl_box = AcquisitionSetup(CtrlFrame)
 DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1)
 DAC_B_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC B', 2)
 DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3)
+
+proc_type_sel = acq_ctrl_box.processingType(CtrlFrame)
 
 dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
 dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")

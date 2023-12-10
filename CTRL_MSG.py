@@ -48,7 +48,7 @@ def handle_Rx_CTRL_Msg(header, data):
         elif(data[2]==DAC_CH_C_ID):
             CTRL_MSG.DAC_C_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
     if(header == SerialMessage.RxMsgID.proc_type_ack.value):
-        CTRL_MSG.processingType = data(0)
+        CTRL_MSG.processingType = data[0]
 
     
 def build_DAC_set_request(ch_num, value):
@@ -80,6 +80,26 @@ def MeasurementStart_Stop():
         msg.header = SerialMessage.TxMsgID.meas_start_req
     else:
         msg.header = SerialMessage.TxMsgID.meas_stop_req
+
+    msg.getCRC8()
+
+    return msg.buildByteArr()
+
+def build_processing_type_request(type):
+    msg = SerialMessage.SerialMessage()
+
+    msg.startSymbol = 0x55
+
+    msg.header = SerialMessage.TxMsgID.processing_type
+
+    if(type == 'raw_TOT'):
+        msg.data[0] = SerialMessage.PulseProcesssingTypes.raw_TOT.value
+    elif(type == 'exponential_fit'):
+        msg.data[0] = SerialMessage.PulseProcesssingTypes.exponential_fit.value
+    elif(type == '[NA] linear_fit'):
+        msg.data[0] = SerialMessage.PulseProcesssingTypes.linear_fit.value
+    elif(type == '[NA] NN'):
+        msg.data[0] = SerialMessage.PulseProcesssingTypes.NN.value
 
     msg.getCRC8()
 
