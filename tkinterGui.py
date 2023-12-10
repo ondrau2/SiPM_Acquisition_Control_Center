@@ -8,11 +8,11 @@ import matplotlib
 import matplotlib.pyplot as plt
 from tkinter import ttk
 from ClusteredFileProcessing_v2 import *
-from HitCountImg import *
-from SpectImg import *
+#from HitCountImg import *
+#from SpectImg import *
 from TkinterGraphing import *
-from ImageSpectrumAnalysis import *
-from ImageHitRateAnalysis import *
+#from ImageSpectrumAnalysis import *
+#from ImageHitRateAnalysis import *
 from ConnectionPannelContents import *
 from AcquisitionSetup import *
 from STM_serial import *
@@ -41,7 +41,7 @@ root.title("SiPM Acquisition Control")
 #################################----VARIABLES-----############################
 
 ##Object handeling data saving
-DataSave = MeasStore(r'C:\Users\ondra\Documents\Projekty\INNMEDSCAN\Technical\data')
+DataSave = MeasStore(os.path.expanduser('~/Documents'))
 ##Communication object
 communication = STM_serial(115200, DataSave)
 ##Queue for gui data handling

@@ -18,7 +18,7 @@ from dataclasses import dataclass
 import SerialMessage
 import CTRL_MSG
 
-TARGET_PATH = os.path.expanduser('~/Documents')
+#TARGET_PATH = os.path.expanduser('~/Documents')
 stopEvent = Event()
 
 @dataclass
