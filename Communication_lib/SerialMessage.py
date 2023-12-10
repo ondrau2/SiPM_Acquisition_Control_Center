@@ -1,9 +1,13 @@
 from enum import Enum
 import numpy as np
 
+###############################################################################
+#################################----VARIABLES-----############################
 
+#Packet data length
 totalDataLength = 7
 
+#CRC table
 crc_table = np.array([
 	0,   49,  98,  83,  196, 245, 166, 151, 185, 136, 219, 234, 125, 76,  31,  46,
 	67,  114, 33,  16,  135, 182, 229, 212, 250, 203, 152, 169, 62,  15,  92,  109,
@@ -23,8 +27,11 @@ crc_table = np.array([
 	130, 179, 224, 209, 70,  119, 36,  21,  59,  10,  89,  104, 255, 206, 157, 172
 ],np.uint8)
 
-rx_data_buff = [0xFF]*totalDataLength*8 #np.zeros(totalDataLength*2)
+#Receive data buffer
+rx_data_buff = [0xFF]*totalDataLength*8 
 
+###############################################################################
+###############################----MESSAGE IDs-----############################
 
 class RxMsgID(Enum):
     tx_invalid = 0			## Invalid 
@@ -50,6 +57,8 @@ class PulseProcesssingTypes(Enum):
     linear_fit = 2			## Not implemented 
     NN = 3					## Not implemented 
 
+###############################################################################
+#######################----DATA HANDLING CALSS-----############################
 class SerialMessage:
     def __init__(self):
         self.startSymbol = 0x55
@@ -57,6 +66,7 @@ class SerialMessage:
         self.data = np.array([0,0,0,0])     ## byte array
         self.crc8 = 0
 
+    #Get CRC of the packet
     def getCRC8(self):
         crc = 0
         data = self.data
@@ -67,6 +77,7 @@ class SerialMessage:
             crc = crc_table[crc ^ data[i]]
         self.crc8 = crc
 
+    #Get crc from an array
     def getRawDataCRC8(self, data):
         crc = 0
         size = totalDataLength 
@@ -75,6 +86,7 @@ class SerialMessage:
             crc = crc_table[np.bitwise_xor(np.uint8(crc), np.uint8(data[i]))]
         return crc
     
+    #Store packet to an array
     def buildByteArr(self):
         dataArr = np.zeros(7, dtype='uint8')
         dataArr[0] = self.startSymbol
@@ -87,12 +99,14 @@ class SerialMessage:
 
         return dataArr
     
+    #Check the message format (from bytes)
     def checkRawMsgFormat(self, data):
         if(data[0] == 0x55):
             if(data[6] == self.getRawDataCRC8(data)):
                 return True
         return False
     
+    #Builds packet from received bytes
     def buildStructureFromRxData(self, data):
         formatCheck = self.checkRawMsgFormat(data)
         if(formatCheck):
@@ -101,6 +115,7 @@ class SerialMessage:
             self.data = np.array([data[2], data[3], data[4], data[5]])
             self.crc8 = data[6]
 
+    #Checks format of the packet
     def checkMsgFormat(self):
         if(self.startSymbol == 0x55):
             if(self.crc8 == self.getCRC8()):
@@ -108,6 +123,7 @@ class SerialMessage:
         
         return False
     
+    #Buffer the received bytes
     def AddRxBytesRoBuffer(self, rxData, rxLength):
         for i in range(rxLength):
             global rx_data_buff

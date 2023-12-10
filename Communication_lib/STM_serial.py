@@ -18,16 +18,16 @@ from dataclasses import dataclass
 import Communication_lib.SerialMessage as SerialMessage
 import Communication_lib.CTRL_MSG as CTRL_MSG
 
-#TARGET_PATH = os.path.expanduser('~/Documents')
+##Stop the async Rx
 stopEvent = Event()
 
-@dataclass
+"""@dataclass
 class detector_event:
     channel: int 
-    duration: int
+    duration: int"""
 
  
-
+##Serial reception class
 class STM_serial:
     def __init__(self, BAUDRATE, DataSave):
         self.baudrate = 115200
@@ -40,6 +40,7 @@ class STM_serial:
             #print("{}: {} [{}]".format(port, desc, hwid))
             self.COM_ports.append(port)
         
+    #Refresh the ports
     def refresh(self):
         self.COM_ports = []
         self.ports = serial.tools.list_ports.comports()
@@ -47,17 +48,19 @@ class STM_serial:
             #print("{}: {} [{}]".format(port, desc, hwid))
             self.COM_ports.append(port)
 
+    #Connect to the port
     def COM_connect(self, COM_NAME):
-        #try:
-            self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
-        #except:
-        #    print("Error")
+        self.ser = serial.Serial(port=COM_NAME, baudrate=self.baudrate, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=0, rtscts=0)
+
+    #Closse the COM port
     def COM_close(self):
         self.ser.close()
 
+    #Transmitt data
     def transmitt_data(self, data):
         self.ser.write(data)
 
+    #Asynchronnous reception
     def COM_Receive_data_async(self, queue, stopEvent: Event):
         RxMsg = SerialMessage.SerialMessage()
 
@@ -65,67 +68,68 @@ class STM_serial:
             try:            
                 bytesToRead = self.ser.inWaiting()
                 if(bytesToRead > 0):
-                    #line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
+                    #Read 7 bytes
                     data =  self.ser.read(7)
 
-                    ##Add to buffer and check if complete
+                    #Add to buffer and check if complete
                     if(RxMsg.AddRxBytesRoBuffer(data, 7)==True):
-                        #Put to queue
+                        #Put to queue - other thread reads
                         queue.put(RxMsg)
             except:
                 pass
 
+            #Check if stop is requested
             if(stopEvent.is_set()):
                 break
 
-
+    ##Read from the queue and store to buffer             
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
+
+        #Measurement and control message buffers
         BUFFER_Meas = []
         BUFFER_CTRL = []
 
+        #Use global histogram object
         global GUI_hist
 
-        #ct = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-        #path = TARGET_PATH + '\\' + str(ct) + '.txt'
-
-        #global hist
         while True:
-            # get a unit of work
+
             item = queue.get()
-            # check for stop
+
+            #Check if exists
             if item is None:
                 break
             else:
+                #Check if message is measurement
                 if(item.header == SerialMessage.RxMsgID.measured_pulse_val):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas.append(measuredVal)
-                    #Give it to the GUI
+
+                    #Read the buffer when decent amount of data
                     if(len(BUFFER_Meas) >= 100):
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
-                    GUI_hitcnts.addCount(1, 1)
                 else:
-                    #BUFFER_CTRL.append(item)
-                    #Give it to the GUI thread
+                    #Control message - handle directly
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
-                    #BUFFER_CTRL.clear()                   
                 
+            #Check if stop requested
             if(stopEvent.is_set()):
                 break
 
-            # report
-            #print(f'>Reader got {item}')
+    ##Start the reception
     def COM_Receive_Start(self, GUI_queue):
-        # create the shared queue
+        #Create the shared queue
         queue = Queue()
         stopEvent.clear()
-        # start the consumer
+        #Create the consumer
         my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue, stopEvent, ))
         my_consumer.start()
-        # start the producer
+        #Start the rx
         my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,stopEvent, ))
         my_producer.start()
 
+    #Stop the async receive
     def COM_Receive_Stop(self):
         stopEvent.set()

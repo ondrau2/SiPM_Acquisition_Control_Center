@@ -2,10 +2,18 @@ import numpy as np
 import Communication_lib.SerialMessage as SerialMessage
 from dataclasses import dataclass
 
+###############################################################################
+#################################----VARIABLES-----############################
 DAC_CH_A_ID = 1
 DAC_CH_B_ID = 2
 DAC_CH_C_ID = 3
 
+aliveCntr = 0
+
+###############################################################################
+#######################----CLASSES AND FUNCTIONS-----##########################
+
+##Status variables
 @dataclass
 class CTRL_MSG:
     boardAlive = False
@@ -15,8 +23,7 @@ class CTRL_MSG:
     measRunning = False
     processingType = 0
 
-aliveCntr = 0
-
+##Handles the board alive variable
 def boardAliveWDG():
     global aliveCntr 
     aliveCntr = aliveCntr + 1
@@ -24,33 +31,45 @@ def boardAliveWDG():
         CTRL_MSG.boardAlive = False
     else: 
         CTRL_MSG.boardAlive = True
+
+##Handle heartbeat reception
 def HB_handle(measStatus):
     global aliveCntr 
     aliveCntr = 0
     CTRL_MSG.measRunning = bool(measStatus)
 
+##Handle all control messages (non-acqiosition) 
 def handle_Rx_CTRL_Msg(header, data):
-    #HB
+    #Heartbeat
     if(header == SerialMessage.RxMsgID.heart_beat.value):
         HB_handle(data[3])
 
-    if(header == SerialMessage.RxMsgID.meas_start_ack.value):
+    #Measurement start
+    elif(header == SerialMessage.RxMsgID.meas_start_ack.value):
         CTRL_MSG.measRunning = True
 
-    if(header == SerialMessage.RxMsgID.meas_stop_ack.value):
+    #Measurement stop
+    elif(header == SerialMessage.RxMsgID.meas_stop_ack.value):
         CTRL_MSG.measRunning = False
 
-    if(header == SerialMessage.RxMsgID.DAC_set_resp.value):
+    #DAC value set response
+    elif(header == SerialMessage.RxMsgID.DAC_set_resp.value):
         if(data[2]==DAC_CH_A_ID):
             CTRL_MSG.DAC_A_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
         elif(data[2]==DAC_CH_B_ID):
             CTRL_MSG.DAC_B_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
         elif(data[2]==DAC_CH_C_ID):
             CTRL_MSG.DAC_C_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
-    if(header == SerialMessage.RxMsgID.proc_type_ack.value):
+
+    #Processing type changes response
+    elif(header == SerialMessage.RxMsgID.proc_type_ack.value):
         CTRL_MSG.processingType = data[0]
 
-class CmdRespBuild:   
+
+##Class with functions for control command packet build
+class CmdRespBuild:  
+
+    #Build the DAC voltage request ctrl message
     def build_DAC_set_request(ch_num, value):
         msg = SerialMessage.SerialMessage()
     
@@ -71,6 +90,7 @@ class CmdRespBuild:
     
         return msg.buildByteArr()
     
+    #Build measurement start/stop array
     def MeasurementStart_Stop():
         msg = SerialMessage.SerialMessage()
     
@@ -85,6 +105,7 @@ class CmdRespBuild:
     
         return msg.buildByteArr()
     
+    #Build processing type change array
     def build_processing_type_request(type):
         msg = SerialMessage.SerialMessage()
     

@@ -1,13 +1,14 @@
 import numpy as np
 
-#hist = np.zeros(10000)
-
+##Basic histogram class
 class Histogram:
     def __init__(self, size, max):
         self.hist = np.zeros(size)
         self.maximum = max
         self.bin = np.floor(max/size)
         self.size = size
+
+    #Add buffered values to hte histogram
     def addToHist(self, buffer):
         for value in buffer:
             ValIndex = int(np.floor(value/self.bin))
@@ -15,9 +16,12 @@ class Histogram:
                 self.hist[ValIndex] = self.hist[ValIndex] + 1
             else:
                 self.hist[self.size-1] = self.hist[self.size-1] + 1
+
+    #Clear the histogram - set all bins to 0
     def clearHist(self):
         self.hist = np.zeros(self.size)
 
+##Contains hit-counts for 3 channels
 class HitCounts:
     def __init__(self):
         self.CH1 = 0
@@ -35,6 +39,8 @@ class HitCounts:
         elif(channel == 3):
            self.CH3 = self.CH3 + value
 
+##Global histogram class
 GUI_hist = Histogram(1000,10000)
 
-GUI_hitcnts = HitCounts()
+##Global hit counts - not neede in this version
+#GUI_hitcnts = HitCounts()
