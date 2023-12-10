@@ -1,5 +1,5 @@
 import numpy as np
-import SerialMessage
+import Communication_lib.SerialMessage as SerialMessage
 from dataclasses import dataclass
 
 DAC_CH_A_ID = 1

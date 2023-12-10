@@ -15,10 +15,10 @@ from TkinterGraphing import *
 #from ImageHitRateAnalysis import *
 import GUI_lib.ConnectionPannelContents as CONN_GUI
 import GUI_lib.AcquisitionSetup as ACQ_GUI
-from STM_serial import *
+import Communication_lib.STM_serial as SERIAL
 from Histogram import *
-from MeasStore import *
-from CTRL_MSG import *
+import Communication_lib.MeasStore as Storage
+import Communication_lib.CTRL_MSG as MSG
 
 matplotlib.use('TkAgg')
 
@@ -41,11 +41,11 @@ root.title("SiPM Acquisition Control")
 #################################----VARIABLES-----############################
 
 ##Object handeling data saving
-DataSave = MeasStore(os.path.expanduser('~/Documents'))
+DataSave = Storage.MeasStore(os.path.expanduser('~/Documents'))
 ##Communication object
-communication = STM_serial(115200, DataSave)
+communication = SERIAL.STM_serial(115200, DataSave)
 ##Queue for gui data handling
-gui_queue = Queue()
+gui_queue = SERIAL.Queue()
 ##Histogram array
 histogram = np.zeros(10000)
 
@@ -77,15 +77,15 @@ CtrlFrame.pack(side=LEFT, fill=BOTH, expand=1)
 acq_ctrl_box = ACQ_GUI.AcquisitionSetup(CtrlFrame, DataSave)
 
 ##Add the DAC control
-DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1, communication, CmdRespBuild)
-DAC_B_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC B', 2, communication, CmdRespBuild)
-DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3, communication, CmdRespBuild)
+DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1, communication, MSG.CmdRespBuild)
+DAC_B_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC B', 2, communication, MSG.CmdRespBuild)
+DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3, communication, MSG.CmdRespBuild)
 
 ##Add the processing selection
-proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, CmdRespBuild)
+proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, MSG.CmdRespBuild)
 
 ##Add the acquisition button
-acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, CmdRespBuild, GUI_hist)
+acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, MSG.CmdRespBuild, GUI_hist)
 
 ##Add the DAC views
 dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
@@ -105,16 +105,16 @@ def updateData():
     TKG.show_plot(np.linspace(1,GUI_hist.maximum, GUI_hist.size), GUI_hist.hist) 
 
     #Update DACs
-    dac_ch1_view.set_DAC_val(CTRL_MSG.DAC_A_val)
-    dac_ch2_view.set_DAC_val(CTRL_MSG.DAC_B_val)
-    dac_ch3_view.set_DAC_val(CTRL_MSG.DAC_C_val)
+    dac_ch1_view.set_DAC_val(MSG.CTRL_MSG.DAC_A_val)
+    dac_ch2_view.set_DAC_val(MSG.CTRL_MSG.DAC_B_val)
+    dac_ch3_view.set_DAC_val(MSG.CTRL_MSG.DAC_C_val)
 
     #Update Acq status
-    acqBtn.updateAcqStatus(CTRL_MSG.measRunning)
+    acqBtn.updateAcqStatus(MSG.CTRL_MSG.measRunning)
 
     #Update device status
-    boardAliveWDG()
-    conn_ctrl_box.updateDeviceState(CTRL_MSG.boardAlive)
+    MSG.boardAliveWDG()
+    conn_ctrl_box.updateDeviceState(MSG.CTRL_MSG.boardAlive)
 
     #Start again after 1000ms
     timer = root.after(1000, updateData)

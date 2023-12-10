@@ -13,10 +13,10 @@ from threading import Thread, Event
 from queue import Queue
 from Histogram import *
 import re
-from MeasStore import *
+#from MeasStore import *
 from dataclasses import dataclass
-import SerialMessage
-import CTRL_MSG
+import Communication_lib.SerialMessage as SerialMessage
+import Communication_lib.CTRL_MSG as CTRL_MSG
 
 #TARGET_PATH = os.path.expanduser('~/Documents')
 stopEvent = Event()
