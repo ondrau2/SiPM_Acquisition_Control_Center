@@ -2,17 +2,12 @@ from tkinter import *
 import tkinter as tk
 from tkinter import filedialog as fd
 import customtkinter
-from floatSpinBox import *
 from PIL import ImageTk,Image
 import matplotlib
 import matplotlib.pyplot as plt
 from tkinter import ttk
-from ClusteredFileProcessing_v2 import *
-#from HitCountImg import *
-#from SpectImg import *
-from TkinterGraphing import *
-#from ImageSpectrumAnalysis import *
-#from ImageHitRateAnalysis import *
+import GUI_lib.TkinterGraphing as TkinterGraphing
+import os
 import GUI_lib.ConnectionPannelContents as CONN_GUI
 import GUI_lib.AcquisitionSetup as ACQ_GUI
 import Communication_lib.STM_serial as SERIAL
@@ -65,7 +60,7 @@ HistogramFrame.pack(side=TOP, fill=None, expand=False)
 
 ###############################################################################
 ##############################----GRAPH WINDOW-----############################
-TKG = Tkinter_Graphing(HistogramFrame)
+TKG = TkinterGraphing.Tkinter_Graphing(HistogramFrame)
 
 
 ################################################################################################

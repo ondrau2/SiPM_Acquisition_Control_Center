@@ -42,6 +42,7 @@ class STM_serial:
         
     def refresh(self):
         self.COM_ports = []
+        self.ports = serial.tools.list_ports.comports()
         for port, desc, hwid in sorted(self.ports):
             #print("{}: {} [{}]".format(port, desc, hwid))
             self.COM_ports.append(port)
@@ -61,11 +62,7 @@ class STM_serial:
         RxMsg = SerialMessage.SerialMessage()
 
         while (1):
-            try:
-                state = self.ser.is_open
-            except:
-                state = None
-            if(state != None):
+            try:            
                 bytesToRead = self.ser.inWaiting()
                 if(bytesToRead > 0):
                     #line = self.ser.readline().decode("utf-8")#(self.ser.readline().decode("utf-8")).split('\r\n')
@@ -75,6 +72,8 @@ class STM_serial:
                     if(RxMsg.AddRxBytesRoBuffer(data, 7)==True):
                         #Put to queue
                         queue.put(RxMsg)
+            except:
+                pass
 
             if(stopEvent.is_set()):
                 break

@@ -2,7 +2,7 @@ from tkinter import *
 import tkinter as tk
 from tkinter import filedialog as fd
 import customtkinter
-from floatSpinBox import *
+import GUI_lib.floatSpinBox as floatSpinBox
 
 class ConnectionPannelContents:
     def __init__(self, master, communication, gui_queue):
@@ -66,8 +66,11 @@ class ConnectionPannelContents:
 
             else: 
                 self.btn_Connect.configure(text="Connect")
+                self.communication.COM_Receive_Stop()
         else: 
             self.btn_Connect.configure(text="Connect")
+            self.communication.COM_Receive_Stop()
+
 
     def COM_changed(self, port):
         #global communication

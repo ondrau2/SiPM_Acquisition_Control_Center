@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import filedialog as fd
 import customtkinter
 import os
-from floatSpinBox import *
+import GUI_lib.floatSpinBox as floatSpinBox
 
 class AcquisitionSetup:
     def __init__(self, master, dataSave):
