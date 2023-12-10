@@ -163,33 +163,68 @@ class AcquisitionSetup:
     def __init__(self, master):
         #Variables
         self.clusteredFilePath = ""
-        self.AcqRunning = False
         #UI
+        #Dummy: single side padding bug - add dummy empty label
+        self.lbl_dummyPad1 = customtkinter.CTkLabel(master,text='')
+        self.lbl_dummyPad1.pack(side=TOP, fill=BOTH)
+        
         self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='Select measurement file name:')
-        self.lbl_SelClusFile.pack(side=TOP, fill=BOTH, pady=(30,0))
+        self.lbl_SelClusFile.pack(side=TOP, fill=BOTH)
         selFileFrame = customtkinter.CTkFrame(master)
         selFileFrame.pack(side=TOP)
         self.tb_ClusFilePath = customtkinter.CTkEntry(selFileFrame, state="disabled")
         self.tb_ClusFilePath.pack(side=LEFT, fill=BOTH)
         self.btn_sel_clusFile = customtkinter.CTkButton(selFileFrame, text="Select", command=self.SelectFile_click)
         self.btn_sel_clusFile.pack(side=LEFT, fill=BOTH)
+        self.lbl_dummyPad2 = customtkinter.CTkLabel(master,text='')
+        self.lbl_dummyPad2.pack(side=TOP, fill=BOTH)
+        #self.NF_period = IntVar()
+        #filePeriodSpecFrame = customtkinter.CTkFrame(master)
+        #filePeriodSpecFrame.pack(side=TOP, fill=BOTH)
+        #self.lbl_paramsSel = customtkinter.CTkLabel(filePeriodSpecFrame, text="New file period: ")
+        #self.lbl_paramsSel.pack(side=LEFT, fill=BOTH)
+        #self.tb_NF_period = customtkinter.CTkEntry(filePeriodSpecFrame, textvariable=self.NF_period)
+        #self.tb_NF_period.pack(side=LEFT, fill=BOTH, expand=1)
 
-        self.NF_period = IntVar()
-        filePeriodSpecFrame = customtkinter.CTkFrame(master)
-        filePeriodSpecFrame.pack(side=TOP, fill=BOTH)
-        self.lbl_paramsSel = customtkinter.CTkLabel(filePeriodSpecFrame, text="New file period: ")
-        self.lbl_paramsSel.pack(side=LEFT, fill=BOTH)
-        self.tb_NF_period = customtkinter.CTkEntry(filePeriodSpecFrame, textvariable=self.NF_period)
-        self.tb_NF_period.pack(side=LEFT, fill=BOTH, expand=1)
+    class acquisitionButton:
+        def __init__(self, master) -> None:
+            self.AcqRunning = False
+            self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
+            self.btn_start_acq.pack(side=TOP, fill=BOTH, pady=20)
 
+        def Acq_StartStop_Click(self):      
+            #global communication
+            try:
+                state = communication.ser.is_open
+            except:
+                state = None
 
-        self.btn_start_acq = customtkinter.CTkButton(master, text="Acquisition start", command=self.Acq_StartStop_Click)
-        self.btn_start_acq.pack(side=TOP, fill=BOTH)
+            if(state != None):
+                tx_arr = MeasurementStart_Stop()
+                communication.transmitt_data(tx_arr)
+
+                if(self.AcqRunning == False):                    
+                    GUI_hitcnts.clearCounters()
+                    self.AcqRunning = True
+                    self.btn_start_acq.configure(text = "Stop acquisition")
+                else: 
+                    self.AcqRunning = False
+                    self.btn_start_acq.configure(text = "Start acquisition")
+                    GUI_hist.clearHist()
+
+        def updateAcqStatus(self, board_Rx_ack_state):
+            #print(str(board_Rx_ack_state))
+            if(board_Rx_ack_state == True):
+                self.btn_start_acq.configure(text = "Stop acquisition")
+            else:
+                self.btn_start_acq.configure(text = "Start acquisition")
+
+            self.AcqRunning = board_Rx_ack_state
 
     class processingType:
         def __init__(self, master) -> None:
             procTypeFrame = customtkinter.CTkFrame(master)
-            procTypeFrame.pack(side=TOP, fill=BOTH)
+            procTypeFrame.pack(side=TOP, fill=BOTH, pady=10)
             self.ProcType = StringVar()
             self.lbl_prompt = customtkinter.CTkLabel(procTypeFrame,text='Processing method: ')
             self.lbl_prompt.pack(side=LEFT, fill=BOTH)
@@ -208,7 +243,7 @@ class AcquisitionSetup:
             self.Comp_lvl = DoubleVar()
             self.CH_num = channel_num
             paramSpecFrame = customtkinter.CTkFrame(master)
-            paramSpecFrame.pack(side=TOP, fill=BOTH)
+            paramSpecFrame.pack(side=TOP, fill=BOTH, pady=2)
             self.lbl_Comp_lvl = customtkinter.CTkLabel(paramSpecFrame, text=str(channel_lbl) )
             self.lbl_Comp_lvl.pack(side=LEFT)
             self.tb_Comp_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.Comp_lvl)
@@ -253,38 +288,7 @@ class AcquisitionSetup:
 
         DataSave.ChangeTargetAddress(self.clusteredFilePath.name)
 
-    def Acq_StartStop_Click(self):      
-        #global communication
-        try:
-            state = communication.ser.is_open
-        except:
-            state = None
-
-        if(state != None):
-            tx_arr = MeasurementStart_Stop()
-            communication.transmitt_data(tx_arr)
-
-            if(self.AcqRunning == False):
-         #       communication.ser.write(acq_ctrl_box.tb_Comp_lvl.get().encode("utf-8"))
-                
-                GUI_hitcnts.clearCounters()
-         #       communication.COM_Receive_Start(gui_queue)
-                self.AcqRunning = True
-                self.btn_start_acq.configure(text = "Stop acquisition")
-            else: 
-         #      communication.COM_Receive_Stop()
-                self.AcqRunning = False
-                self.btn_start_acq.configure(text = "Start acquisition")
-                GUI_hist.clearHist()
-
-    def updateAcqStatus(self, board_Rx_ack_state):
-        #print(str(board_Rx_ack_state))
-        if(board_Rx_ack_state == True):
-            self.btn_start_acq.configure(text = "Stop acquisition")
-        else:
-            self.btn_start_acq.configure(text = "Start acquisition")
-        
-        self.AcqRunning = board_Rx_ack_state
+    
 
  
 class ProcessedFileLoad:
@@ -326,6 +330,8 @@ DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3)
 
 proc_type_sel = acq_ctrl_box.processingType(CtrlFrame)
 
+acqBtn = AcquisitionSetup.acquisitionButton(CtrlFrame)
+
 dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
 dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")
 dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
@@ -345,7 +351,7 @@ def updateData():
     dac_ch3_view.set_DAC_val(CTRL_MSG.DAC_C_val)
 
     #Update Acq status
-    acq_ctrl_box.updateAcqStatus(CTRL_MSG.measRunning)
+    acqBtn.updateAcqStatus(CTRL_MSG.measRunning)
 
     #Update device status
     boardAliveWDG()
