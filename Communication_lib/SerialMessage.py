@@ -41,6 +41,9 @@ class RxMsgID(Enum):
     heart_beat = 4			## Periodic message for alive indication 
     DAC_set_resp = 5		## Acknowledgment of DAC voltage setup 
     proc_type_ack = 6		## Acknowledgment of processing type change 
+    measured_ch_A = 7       ## Measuremetn data for CH A (CH 1)
+    measured_ch_B = 8       ## Measuremetn data for CH B (CH 2)
+    measured_ch_C = 9       ## Measuremetn data for CH C (CH 3)
 
 class TxMsgID(Enum):
     rx_invalid = 0		## Invalid 
@@ -52,10 +55,11 @@ class TxMsgID(Enum):
     processing_type = 6	    ## Type of the processing change request 
 
 class PulseProcesssingTypes(Enum):
-    raw_TOT = 0			    ## Only ToT evaluation 
-    exponential_fit = 1 	## Fit exponential function 
-    linear_fit = 2			## Not implemented 
-    NN = 3					## Not implemented 
+    Independent = 0         ## Independent channels
+    raw_TOT = 1			    ## Only ToT evaluation 
+    exponential_fit = 2 	## Fit exponential function 
+    linear_fit = 3			## Not implemented 
+    NN = 4					## Not implemented 
 
 ###############################################################################
 #######################----DATA HANDLING CALSS-----############################

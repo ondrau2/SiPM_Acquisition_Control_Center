@@ -110,6 +110,33 @@ class STM_serial:
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_A):
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+                    BUFFER_Meas.append(measuredVal)
+
+                    #Read the buffer when decent amount of data
+                    if(len(BUFFER_Meas) >= 100):
+                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
+                        GUI_hist.addToHist(BUFFER_Meas)
+                        BUFFER_Meas.clear()
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_B):
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+                    BUFFER_Meas.append(measuredVal)
+
+                    #Read the buffer when decent amount of data
+                    if(len(BUFFER_Meas) >= 100):
+                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH2")
+                        GUI_hist.addToHist(BUFFER_Meas)
+                        BUFFER_Meas.clear()
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_C):
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+                    BUFFER_Meas.append(measuredVal)
+
+                    #Read the buffer when decent amount of data
+                    if(len(BUFFER_Meas) >= 100):
+                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH3")
+                        GUI_hist.addToHist(BUFFER_Meas)
+                        BUFFER_Meas.clear()
                 else:
                     #Control message - handle directly
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)

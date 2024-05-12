@@ -121,7 +121,9 @@ class CmdRespBuild:
             msg.data[0] = SerialMessage.PulseProcesssingTypes.linear_fit.value
         elif(type == '[NA] NN'):
             msg.data[0] = SerialMessage.PulseProcesssingTypes.NN.value
-    
+        elif(type == 'Independent'):
+            msg.data[0] = SerialMessage.PulseProcesssingTypes.Independent.value
+
         msg.getCRC8()
     
         return msg.buildByteArr()

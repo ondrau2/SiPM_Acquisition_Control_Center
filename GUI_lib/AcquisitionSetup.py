@@ -100,7 +100,7 @@ class AcquisitionSetup:
             self.lbl_prompt = customtkinter.CTkLabel(procTypeFrame,text='Processing method: ')
             self.lbl_prompt.pack(side=LEFT, fill=BOTH)
             self.cb_selProc = customtkinter.CTkComboBox(procTypeFrame, variable=self.ProcType, command= self.ProcTypeChanged)
-            self.cb_selProc.configure(values = ["raw_TOT", "exponential_fit", "[NA] linear_fit", "[NA] NN"])
+            self.cb_selProc.configure(values = ["Independent", "raw_TOT", "exponential_fit", "[NA] linear_fit", "[NA] NN"])
             self.cb_selProc.configure(state = 'readonly')
             self.cb_selProc.pack(side=RIGHT, fill=BOTH)
             self.cb_selProc.bind('<<ComboBoxSelected>>', self.ProcTypeChanged)
