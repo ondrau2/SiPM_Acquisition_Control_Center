@@ -101,7 +101,7 @@ class STM_serial:
                 break
             else:
                 #Check if message is measurement
-                if(item.header == SerialMessage.RxMsgID.measured_pulse_val):
+                if(item.header == SerialMessage.RxMsgID.measured_pulse_val.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas.append(measuredVal)
 
@@ -110,7 +110,7 @@ class STM_serial:
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_A):
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_A.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas.append(measuredVal)
 
@@ -119,7 +119,7 @@ class STM_serial:
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_B):
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_B.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas.append(measuredVal)
 
@@ -128,7 +128,7 @@ class STM_serial:
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_CH2")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_C):
+                elif(item.header == SerialMessage.RxMsgID.measured_ch_C.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas.append(measuredVal)
 
