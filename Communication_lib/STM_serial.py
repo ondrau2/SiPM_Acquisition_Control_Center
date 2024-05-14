@@ -87,6 +87,10 @@ class STM_serial:
 
         #Measurement and control message buffers
         BUFFER_Meas = []
+        
+        BUFFER_Meas_A = []
+        BUFFER_Meas_B = []
+        BUFFER_Meas_C = []
         BUFFER_CTRL = []
 
         #Use global histogram object
@@ -106,37 +110,37 @@ class STM_serial:
                     BUFFER_Meas.append(measuredVal)
 
                     #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas) >= 100):
-                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
+                    if(len(BUFFER_Meas) >= 1):
+                        self.DataSave.SaveBuffer(BUFFER_Meas, "_tot")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_A.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
-                    BUFFER_Meas.append(measuredVal)
+                    BUFFER_Meas_A.append(measuredVal)
 
                     #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas) >= 100):
-                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH1")
-                        GUI_hist.addToHist(BUFFER_Meas)
-                        BUFFER_Meas.clear()
+                    if(len(BUFFER_Meas_A) >= 1):
+                        self.DataSave.SaveBuffer(BUFFER_Meas_A, "_CH1")
+                        GUI_hist.addToHist(BUFFER_Meas_A)
+                        BUFFER_Meas_A.clear()
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_B.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
-                    BUFFER_Meas.append(measuredVal)
+                    BUFFER_Meas_B.append(measuredVal)
 
                     #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas) >= 100):
-                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH2")
-                        GUI_hist.addToHist(BUFFER_Meas)
-                        BUFFER_Meas.clear()
+                    if(len(BUFFER_Meas_B) >= 1):
+                        self.DataSave.SaveBuffer(BUFFER_Meas_B, "_CH2")
+                        GUI_hist.addToHist(BUFFER_Meas_B)
+                        BUFFER_Meas_B.clear()
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_C.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
-                    BUFFER_Meas.append(measuredVal)
+                    BUFFER_Meas_C.append(measuredVal)
 
                     #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas) >= 100):
-                        self.DataSave.SaveBuffer(BUFFER_Meas, "_CH3")
-                        GUI_hist.addToHist(BUFFER_Meas)
-                        BUFFER_Meas.clear()
+                    if(len(BUFFER_Meas_C) >= 1):
+                        self.DataSave.SaveBuffer(BUFFER_Meas_C, "_CH3")
+                        GUI_hist.addToHist(BUFFER_Meas_C)
+                        BUFFER_Meas_C.clear()
                 else:
                     #Control message - handle directly
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
