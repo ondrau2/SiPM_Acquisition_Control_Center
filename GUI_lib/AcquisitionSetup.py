@@ -142,8 +142,8 @@ class AcquisitionSetup:
             self.HV_lvl = DoubleVar()
             self.CmdRespBuild = CmdRespBuild
 
-            self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='Bias setup:')
-            self.lbl_SelClusFile.pack(side=TOP, fill=BOTH)
+            self.lbl_HV_lbl = customtkinter.CTkLabel(master,text='Bias setup:')
+            self.lbl_HV_lbl.pack(side=TOP, fill=BOTH)
             paramSpecFrame = customtkinter.CTkFrame(master)
             paramSpecFrame.pack(side=TOP, fill=BOTH, pady=2)
 
@@ -155,6 +155,13 @@ class AcquisitionSetup:
             self.btn_start_acq = customtkinter.CTkButton(paramSpecFrame, text="Set", command=self.SetHV)
             self.btn_start_acq.pack(side=LEFT, fill=BOTH)
 
+            HV_EN_Frame = customtkinter.CTkFrame(master)
+            HV_EN_Frame.pack(side=TOP, fill=BOTH, pady=2)
+            self.HV_check_state = StringVar()
+            self.cb_HV_en = customtkinter.CTkCheckBox(HV_EN_Frame, text="Enable bias", command=self.cb_HV_checked,
+                                     variable=self.HV_check_state, onvalue="on", offvalue="off")
+            self.cb_HV_en.pack(side=TOP, fill=BOTH, expand=1)
+
             #Dummy setup
             self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='')
             self.lbl_SelClusFile.pack(side=TOP, fill=BOTH, pady=10)
@@ -162,6 +169,10 @@ class AcquisitionSetup:
         #Set button handle - send the command
         def SetHV(self):
             tx_arr = self.CmdRespBuild.build_HV_set_request(self.HV_lvl.get())
+            self.communication.transmitt_data(tx_arr)
+
+        def cb_HV_checked(self):
+            tx_arr = self.CmdRespBuild.build_HV_enable_request(self.HV_check_state.get())
             self.communication.transmitt_data(tx_arr)
             
     #GUI for the DAC voltage view

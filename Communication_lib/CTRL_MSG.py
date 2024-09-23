@@ -105,6 +105,21 @@ class CmdRespBuild:
     
         return msg.buildByteArr()
 
+    def build_HV_enable_request(value):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+        msg.header = SerialMessage.TxMsgID.HV_enable
+
+        if(value == "on"):
+             msg.data[0] = 0x1
+        else:
+            msg.data[0] = 0x0
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()       
+
     #Build measurement start/stop array
     def MeasurementStart_Stop():
         msg = SerialMessage.SerialMessage()
