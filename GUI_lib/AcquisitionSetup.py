@@ -134,6 +134,35 @@ class AcquisitionSetup:
         def SetDAC(self):
             tx_arr = self.CmdRespBuild.build_DAC_set_request(self.CH_num, self.Comp_lvl.get())
             self.communication.transmitt_data(tx_arr)
+
+    #GUI for HV supply control
+    class HV_set:
+        def __init__(self, master, HV_lbl, communication, CmdRespBuild):
+            self.communication = communication
+            self.HV_lvl = DoubleVar()
+            self.CmdRespBuild = CmdRespBuild
+
+            self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='Bias setup:')
+            self.lbl_SelClusFile.pack(side=TOP, fill=BOTH)
+            paramSpecFrame = customtkinter.CTkFrame(master)
+            paramSpecFrame.pack(side=TOP, fill=BOTH, pady=2)
+
+            self.lbl_HV_lvl = customtkinter.CTkLabel(paramSpecFrame, text=str(HV_lbl) )
+            self.lbl_HV_lvl.pack(side=LEFT)
+            self.tb_HV_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.HV_lvl)
+            self.tb_HV_lvl.pack(side=LEFT, fill=BOTH, expand=1)
+
+            self.btn_start_acq = customtkinter.CTkButton(paramSpecFrame, text="Set", command=self.SetHV)
+            self.btn_start_acq.pack(side=LEFT, fill=BOTH)
+
+            #Dummy setup
+            self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='')
+            self.lbl_SelClusFile.pack(side=TOP, fill=BOTH, pady=10)
+
+        #Set button handle - send the command
+        def SetHV(self):
+            tx_arr = self.CmdRespBuild.build_HV_set_request(self.HV_lvl.get())
+            self.communication.transmitt_data(tx_arr)
             
     #GUI for the DAC voltage view
     class DAC_view:

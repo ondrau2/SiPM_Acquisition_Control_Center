@@ -90,6 +90,21 @@ class CmdRespBuild:
     
         return msg.buildByteArr()
     
+    #Build the HV voltage request ctrl message
+    def build_HV_set_request(value):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+        msg.header = SerialMessage.TxMsgID.HV_val_set
+        
+        dec_val = np.round(np.double(value)*100)
+        msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
+        msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+
     #Build measurement start/stop array
     def MeasurementStart_Stop():
         msg = SerialMessage.SerialMessage()

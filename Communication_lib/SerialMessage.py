@@ -44,6 +44,7 @@ class RxMsgID(Enum):
     measured_ch_A = 7       ## Measuremetn data for CH A (CH 1)
     measured_ch_B = 8       ## Measuremetn data for CH B (CH 2)
     measured_ch_C = 9       ## Measuremetn data for CH C (CH 3)
+    HV_state = 10           ## State of the HV voltage supply (enable, set V, real V)
 
 class TxMsgID(Enum):
     rx_invalid = 0		## Invalid 
@@ -53,6 +54,8 @@ class TxMsgID(Enum):
     DAC_B_set = 4		    ## DAC channel B voltage set 
     DAC_C_set = 5		    ## DAC channel C voltage set 
     processing_type = 6	    ## Type of the processing change request 
+    HV_val_set = 7          ## Set HV 
+    HV_enable = 8           ## Enable the HV source
 
 class PulseProcesssingTypes(Enum):
     Independent = 0         ## Independent channels

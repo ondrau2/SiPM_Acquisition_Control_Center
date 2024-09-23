@@ -72,6 +72,7 @@ CtrlFrame.pack(side=LEFT, fill=BOTH, expand=1)
 acq_ctrl_box = ACQ_GUI.AcquisitionSetup(CtrlFrame, DataSave)
 
 ##Add the DAC control
+HV_suply = acq_ctrl_box.HV_set(CtrlFrame, 'HV: ', communication, MSG.CmdRespBuild)
 DAC_A_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC A', 1, communication, MSG.CmdRespBuild)
 DAC_B_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC B', 2, communication, MSG.CmdRespBuild)
 DAC_C_set = acq_ctrl_box.DAC_set(CtrlFrame, 'DAC C', 3, communication, MSG.CmdRespBuild)
