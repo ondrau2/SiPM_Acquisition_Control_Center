@@ -44,7 +44,7 @@ class RxMsgID(Enum):
     measured_ch_A = 7       ## Measuremetn data for CH A (CH 1)
     measured_ch_B = 8       ## Measuremetn data for CH B (CH 2)
     measured_ch_C = 9       ## Measuremetn data for CH C (CH 3)
-    HV_state = 10           ## State of the HV voltage supply (enable, set V, real V)
+    HV_state = 10           ## State of the HV voltage supply (byte 0: on/off, byte1,2: real V*100)
 
 class TxMsgID(Enum):
     rx_invalid = 0		## Invalid 

@@ -22,6 +22,8 @@ class CTRL_MSG:
     DAC_C_val = 0
     measRunning = False
     processingType = 0
+    HV_state = 0
+    HV_value = 0
 
 ##Handles the board alive variable
 def boardAliveWDG():
@@ -64,6 +66,11 @@ def handle_Rx_CTRL_Msg(header, data):
     #Processing type changes response
     elif(header == SerialMessage.RxMsgID.proc_type_ack.value):
         CTRL_MSG.processingType = data[0]
+
+    #HV state read
+    elif(header == SerialMessage.RxMsgID.HV_state):
+        CTRL_MSG.HV_state = data[0]
+        CTRL_MSG.HV_value = (np.uint8(data[2]) << 8 ) | np.uint8(data[1])/100 
 
 
 ##Class with functions for control command packet build

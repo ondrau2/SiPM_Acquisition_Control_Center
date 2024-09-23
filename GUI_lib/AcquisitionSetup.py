@@ -174,6 +174,14 @@ class AcquisitionSetup:
         def cb_HV_checked(self):
             tx_arr = self.CmdRespBuild.build_HV_enable_request(self.HV_check_state.get())
             self.communication.transmitt_data(tx_arr)
+
+        def cb_HV_check_update(self, state):
+            if(state == 0):
+                self.HV_check_state.set("off") 
+            else:
+                self.HV_check_state.set("on")
+
+
             
     #GUI for the DAC voltage view
     class DAC_view:
@@ -192,5 +200,20 @@ class AcquisitionSetup:
             self.DAC_voltage = DAC_val
             self.tb_dac_val.configure(text = str(DAC_val))
             
+    class HV_view:
+        def __init__(self, master):
+            self.HV_voltage = DoubleVar(value=0) 
+            HV_info = customtkinter.CTkFrame(master)
+            HV_info.pack(side=BOTTOM, fill=BOTH)
+
+            self.lbl_hv_val = customtkinter.CTkLabel(HV_info, text="Bias [V]: " )
+            self.lbl_hv_val.pack(side=LEFT)
+            self.tb_hv_val = customtkinter.CTkLabel(HV_info, text=str(self.HV_voltage.get()))
+            self.tb_hv_val.pack(side=LEFT, fill=BOTH, expand=1)
+
+        #Change the label value
+        def set_HV_val(self, HV_val):
+            self.HV_voltage = HV_val
+            self.tb_hv_val.configure(text = str(HV_val))
 
     

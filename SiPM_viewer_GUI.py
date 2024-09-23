@@ -88,6 +88,8 @@ dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
 dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")
 dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
 
+hv_info_view = acq_ctrl_box.HV_view(CtrlFrame)
+
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
 conn_ctrl_box = CONN_GUI.ConnectionPannelContents(ConnectionPannel_Frame, communication, gui_queue)
@@ -107,6 +109,11 @@ def updateData():
 
     #Update Acq status
     acqBtn.updateAcqStatus(MSG.CTRL_MSG.measRunning)
+
+    #Update HV info
+    hv_info_view.set_HV_val(MSG.CTRL_MSG.HV_value)
+    HV_suply.cb_HV_check_update(MSG.CTRL_MSG.HV_state)
+
 
     #Update device status
     MSG.boardAliveWDG()
