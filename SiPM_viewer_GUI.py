@@ -114,10 +114,12 @@ def updateData():
     hv_info_view.set_HV_val(MSG.CTRL_MSG.HV_value)
     HV_suply.cb_HV_check_update(MSG.CTRL_MSG.HV_state)
 
-
     #Update device status
     MSG.boardAliveWDG()
     conn_ctrl_box.updateDeviceState(MSG.CTRL_MSG.boardAlive)
+
+    #Update the processing type
+    proc_type_sel.UpdateProcessingType(MSG.CTRL_MSG.processingType)
 
     #Start again after 1000ms
     timer = root.after(1000, updateData)

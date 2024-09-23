@@ -111,6 +111,20 @@ class AcquisitionSetup:
             tx_arr = self.CmdRespBuild.build_processing_type_request(procTypeSel)
             self.communication.transmitt_data(tx_arr)
 
+        def UpdateProcessingType(self, received):
+            if received == 0:   
+               self.ProcType = "Independent"
+            elif received == 1:   
+               self.ProcType = "raw_TOT"
+            elif received == 2:   
+               self.ProcType = "exponential_fit"
+            elif received == 3:   
+               self.ProcType = "[NA] linear_fit"
+            elif received == 3:   
+               self.ProcType = "[NA] NN"
+            
+            self.cb_selProc.set(self.ProcType)
+
     #GUI for DAC voltage setting
     class DAC_set:
         def __init__(self, master, channel_lbl, channel_num, communication, CmdRespBuild):

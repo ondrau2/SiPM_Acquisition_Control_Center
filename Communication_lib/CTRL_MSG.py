@@ -68,9 +68,9 @@ def handle_Rx_CTRL_Msg(header, data):
         CTRL_MSG.processingType = data[0]
 
     #HV state read
-    elif(header == SerialMessage.RxMsgID.HV_state):
+    elif(header == SerialMessage.RxMsgID.HV_state.value):
         CTRL_MSG.HV_state = data[0]
-        CTRL_MSG.HV_value = (np.uint8(data[2]) << 8 ) | np.uint8(data[1])/100 
+        CTRL_MSG.HV_value = ((np.uint8(data[2]) << 8 ) | np.uint8(data[1]))/100 
 
 
 ##Class with functions for control command packet build
