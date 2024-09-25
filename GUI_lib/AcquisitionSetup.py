@@ -196,7 +196,20 @@ class AcquisitionSetup:
                 self.HV_check_state.set("on")
 
 
-            
+
+    class DAC_tab:
+        def __init__(self, master):
+            self.tabName1 = StringVar(value="Int. CMP")
+            self.tabName2 = StringVar(value="Ext. CMP")
+            self.tabName3 = StringVar(value="Amp Vref")
+            self.tabview = customtkinter.CTkTabview(master)
+            self.tabview.pack(padx=2, pady=2, side = TOP, fill=BOTH)
+
+            self.tabview.add(self.tabName1.get())  # internal comparator DAC
+            self.tabview.add(self.tabName2.get())  # External comparator DAC
+            self.tabview.add(self.tabName3.get())  # External opamp vref
+            self.tabview.set(self.tabName1.get())
+
     #GUI for the DAC voltage view
     class DAC_view:
         def __init__(self, master, CH):
