@@ -78,29 +78,41 @@ proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, MSG.CmdRes
 HV_suply = acq_ctrl_box.HV_set(CtrlFrame, 'HV: ', communication, MSG.CmdRespBuild)
 
 DAC_tab_switch = acq_ctrl_box.DAC_tab(CtrlFrame);
+##Tab 1
 DAC_A_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
 DAC_B_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
 DAC_C_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+##Add the DAC views
+dac_ch1_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), "DAC A: [mV]")
+dac_ch2_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), "DAC B: [mV]")
+dac_ch3_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), "DAC C: [mV]")
 
+##Tab 2
 EXT_CMP_A_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
 EXT_CMP_B_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
 EXT_CMP_C_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+##Add the DAC views
+ext_cmp_ch1_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), "DAC A: [mV]")
+ext_cmp_ch2_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), "DAC B: [mV]")
+ext_cmp_ch3_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), "DAC C: [mV]")
 
-EXT_CMP_A_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
-EXT_CMP_B_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
-EXT_CMP_C_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+##Tab 3
+AMP_VREF_A_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
+AMP_VREF_B_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
+AMP_VREF_C_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+##Add the DAC views
+amp_vref_ch1_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), "DAC A: [mV]")
+amp_vref_ch2_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), "DAC B: [mV]")
+amp_vref_ch3_view = acq_ctrl_box.DAC_view(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), "DAC C: [mV]")
 
+hv_info_view = acq_ctrl_box.HV_view(CtrlFrame)
 
 
 ##Add the acquisition button
 acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, MSG.CmdRespBuild, GUI_hist)
 
-##Add the DAC views
-dac_ch3_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC C: [mV]")
-dac_ch2_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC B: [mV]")
-dac_ch1_view = acq_ctrl_box.DAC_view(CtrlFrame, "DAC A: [mV]")
 
-hv_info_view = acq_ctrl_box.HV_view(CtrlFrame)
+
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
@@ -118,6 +130,14 @@ def updateData():
     dac_ch1_view.set_DAC_val(MSG.CTRL_MSG.DAC_A_val)
     dac_ch2_view.set_DAC_val(MSG.CTRL_MSG.DAC_B_val)
     dac_ch3_view.set_DAC_val(MSG.CTRL_MSG.DAC_C_val)
+
+    ext_cmp_ch1_view.set_DAC_val(MSG.CTRL_MSG.EXT_CMP_A_val)
+    ext_cmp_ch2_view.set_DAC_val(MSG.CTRL_MSG.EXT_CMP_B_val)
+    ext_cmp_ch3_view.set_DAC_val(MSG.CTRL_MSG.EXT_CMP_C_val)
+
+    amp_vref_ch1_view.set_DAC_val(MSG.CTRL_MSG.AMP_VREF_A)
+    amp_vref_ch2_view.set_DAC_val(MSG.CTRL_MSG.AMP_VREF_B)
+    amp_vref_ch3_view.set_DAC_val(MSG.CTRL_MSG.AMP_VREF_C)
 
     #Update Acq status
     acqBtn.updateAcqStatus(MSG.CTRL_MSG.measRunning)

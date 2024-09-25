@@ -8,6 +8,14 @@ DAC_CH_A_ID = 1
 DAC_CH_B_ID = 2
 DAC_CH_C_ID = 3
 
+EXT_CMP_A_CH_ID = 4
+EXT_CMP_B_CH_ID = 5
+EXT_CMP_C_CH_ID = 6
+
+AMP_VREF_A_CH_ID = 7
+AMP_VREF_B_CH_ID = 8
+AMP_VREF_C_CH_ID = 9
+
 aliveCntr = 0
 
 ###############################################################################
@@ -20,6 +28,12 @@ class CTRL_MSG:
     DAC_A_val = 0
     DAC_B_val = 0
     DAC_C_val = 0
+    EXT_CMP_A_val = 0
+    EXT_CMP_B_val = 0
+    EXT_CMP_C_val = 0
+    AMP_VREF_A = 0
+    AMP_VREF_B = 0
+    AMP_VREF_C = 0
     measRunning = False
     processingType = 0
     HV_state = 0
@@ -62,6 +76,18 @@ def handle_Rx_CTRL_Msg(header, data):
             CTRL_MSG.DAC_B_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
         elif(data[2]==DAC_CH_C_ID):
             CTRL_MSG.DAC_C_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==EXT_CMP_A_CH_ID):
+            CTRL_MSG.EXT_CMP_A_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==EXT_CMP_B_CH_ID):
+            CTRL_MSG.EXT_CMP_B_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==EXT_CMP_C_CH_ID):
+            CTRL_MSG.EXT_CMP_C_val = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==AMP_VREF_A_CH_ID):
+            CTRL_MSG.AMP_VREF_A = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==AMP_VREF_B_CH_ID):
+            CTRL_MSG.AMP_VREF_B = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
+        elif(data[2]==AMP_VREF_C_CH_ID):
+            CTRL_MSG.AMP_VREF_C = (np.uint8(data[1]) << 8 ) | np.uint8(data[0]) 
 
     #Processing type changes response
     elif(header == SerialMessage.RxMsgID.proc_type_ack.value):

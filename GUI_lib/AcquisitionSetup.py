@@ -20,9 +20,9 @@ class AcquisitionSetup:
         self.lbl_SelClusFile = customtkinter.CTkLabel(master,text='Select measurement file name:')
         self.lbl_SelClusFile.pack(side=TOP, fill=BOTH)
         selFileFrame = customtkinter.CTkFrame(master)
-        selFileFrame.pack(side=TOP)
+        selFileFrame.pack(side=TOP, fill=BOTH)
         self.tb_ClusFilePath = customtkinter.CTkEntry(selFileFrame, state="disabled")
-        self.tb_ClusFilePath.pack(side=LEFT, fill=BOTH)
+        self.tb_ClusFilePath.pack(side=LEFT, fill=BOTH, expand=1)
         self.btn_sel_clusFile = customtkinter.CTkButton(selFileFrame, text="Select", command=self.SelectFile_click)
         self.btn_sel_clusFile.pack(side=LEFT, fill=BOTH)
         self.lbl_dummyPad2 = customtkinter.CTkLabel(master,text='')
@@ -263,7 +263,7 @@ class AcquisitionSetup:
         def __init__(self, master, CH):
             self.DAC_voltage = IntVar(value=0) 
             DAC_info = customtkinter.CTkFrame(master)
-            DAC_info.pack(side=BOTTOM, fill=BOTH)
+            DAC_info.pack(side=TOP, fill=BOTH)
 
             self.lbl_dac_val = customtkinter.CTkLabel(DAC_info, text= CH )
             self.lbl_dac_val.pack(side=LEFT)
@@ -279,7 +279,7 @@ class AcquisitionSetup:
         def __init__(self, master):
             self.HV_voltage = DoubleVar(value=0) 
             HV_info = customtkinter.CTkFrame(master)
-            HV_info.pack(side=BOTTOM, fill=BOTH)
+            HV_info.pack(side=TOP, fill=BOTH)
 
             self.lbl_hv_val = customtkinter.CTkLabel(HV_info, text="Bias [V]: " )
             self.lbl_hv_val.pack(side=LEFT)
