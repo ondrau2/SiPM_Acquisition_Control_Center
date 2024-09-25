@@ -56,6 +56,12 @@ class TxMsgID(Enum):
     processing_type = 6	    ## Type of the processing change request 
     HV_val_set = 7          ## Set HV 
     HV_enable = 8           ## Enable the HV source
+    EXT_CMP_A_set = 9		    ## EXT_CMP channel A voltage set 
+    EXT_CMP_B_set = 10		    ## EXT_CMP channel B voltage set 
+    EXT_CMP_C_set = 11		    ## EXT_CMP channel C voltage set 
+    AMP_VREF_A_set = 12		    ## AMP_VREF channel A voltage set 
+    AMP_VREF_B_set = 13		    ## AMP_VREF channel B voltage set 
+    AMP_VREF_C_set = 14		    ## AMP_VREF channel C voltage set 
 
 class PulseProcesssingTypes(Enum):
     Independent = 0         ## Independent channels

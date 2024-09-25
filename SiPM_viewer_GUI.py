@@ -71,6 +71,9 @@ CtrlFrame.pack(side=LEFT, fill=BOTH, expand=1)
 ##Add the main object
 acq_ctrl_box = ACQ_GUI.AcquisitionSetup(CtrlFrame, DataSave)
 
+##Add the processing selection
+proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, MSG.CmdRespBuild)
+
 ##Add the DAC control
 HV_suply = acq_ctrl_box.HV_set(CtrlFrame, 'HV: ', communication, MSG.CmdRespBuild)
 
@@ -79,8 +82,15 @@ DAC_A_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabNa
 DAC_B_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
 DAC_C_set = acq_ctrl_box.DAC_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName1.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
 
-##Add the processing selection
-proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, MSG.CmdRespBuild)
+EXT_CMP_A_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
+EXT_CMP_B_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
+EXT_CMP_C_set = acq_ctrl_box.DAC_ext_cmp_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName2.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+
+EXT_CMP_A_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC A', 1, communication, MSG.CmdRespBuild)
+EXT_CMP_B_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC B', 2, communication, MSG.CmdRespBuild)
+EXT_CMP_C_set = acq_ctrl_box.AMP_VREF_set(DAC_tab_switch.tabview.tab(DAC_tab_switch.tabName3.get()), 'DAC C', 3, communication, MSG.CmdRespBuild)
+
+
 
 ##Add the acquisition button
 acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, MSG.CmdRespBuild, GUI_hist)

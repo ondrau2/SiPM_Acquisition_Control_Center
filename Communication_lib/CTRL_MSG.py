@@ -97,6 +97,48 @@ class CmdRespBuild:
     
         return msg.buildByteArr()
     
+    #Build the DAC voltage request ctrl message
+    def build_ext_CMP_DAC_set_request(ch_num, value):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+    
+        if(ch_num == 1):
+            msg.header = SerialMessage.TxMsgID.EXT_CMP_A_set
+        elif(ch_num == 2):
+            msg.header = SerialMessage.TxMsgID.EXT_CMP_B_set
+        elif(ch_num == 3):
+            msg.header = SerialMessage.TxMsgID.EXT_CMP_C_set
+    
+        dec_val = np.round(np.double(value)*1000)
+        msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
+        msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+
+    #Build the op-amp voltage request ctrl message
+    def build_AMP_VREF_set_request(ch_num, value):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+    
+        if(ch_num == 1):
+            msg.header = SerialMessage.TxMsgID.AMP_VREF_A_set
+        elif(ch_num == 2):
+            msg.header = SerialMessage.TxMsgID.AMP_VREF_B_set
+        elif(ch_num == 3):
+            msg.header = SerialMessage.TxMsgID.AMP_VREF_C_set
+    
+        dec_val = np.round(np.double(value)*1000)
+        msg.data[0] = np.uint8(np.bitwise_and(np.uint32(dec_val), 0xFF))
+        msg.data[1] = np.uint8(np.bitwise_and(np.uint32(dec_val) >> 8, 0xFF))
+    
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+    
     #Build the HV voltage request ctrl message
     def build_HV_set_request(value):
         msg = SerialMessage.SerialMessage()

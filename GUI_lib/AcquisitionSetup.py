@@ -149,6 +149,54 @@ class AcquisitionSetup:
             tx_arr = self.CmdRespBuild.build_DAC_set_request(self.CH_num, self.Comp_lvl.get())
             self.communication.transmitt_data(tx_arr)
 
+    #GUI for extern comparator voltage setting
+    class DAC_ext_cmp_set:
+        def __init__(self, master, channel_lbl, channel_num, communication, CmdRespBuild):
+            self.communication = communication
+            self.Comp_lvl = DoubleVar()
+            self.CH_num = channel_num
+            self.CmdRespBuild = CmdRespBuild
+
+            paramSpecFrame = customtkinter.CTkFrame(master)
+            paramSpecFrame.pack(side=TOP, fill=BOTH, pady=2)
+
+            self.lbl_Comp_lvl = customtkinter.CTkLabel(paramSpecFrame, text=str(channel_lbl) )
+            self.lbl_Comp_lvl.pack(side=LEFT)
+            self.tb_Comp_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.Comp_lvl)
+            self.tb_Comp_lvl.pack(side=LEFT, fill=BOTH, expand=1)
+
+            self.btn_start_acq = customtkinter.CTkButton(paramSpecFrame, text="Set", command=self.SetDAC)
+            self.btn_start_acq.pack(side=LEFT, fill=BOTH)
+
+        #Set button handle - send the command
+        def SetDAC(self):
+            tx_arr = self.CmdRespBuild.build_ext_CMP_DAC_set_request(self.CH_num, self.Comp_lvl.get())
+            self.communication.transmitt_data(tx_arr)
+
+    #GUI for op-amp vref voltage setting
+    class AMP_VREF_set:
+        def __init__(self, master, channel_lbl, channel_num, communication, CmdRespBuild):
+            self.communication = communication
+            self.Comp_lvl = DoubleVar()
+            self.CH_num = channel_num
+            self.CmdRespBuild = CmdRespBuild
+
+            paramSpecFrame = customtkinter.CTkFrame(master)
+            paramSpecFrame.pack(side=TOP, fill=BOTH, pady=2)
+
+            self.lbl_Comp_lvl = customtkinter.CTkLabel(paramSpecFrame, text=str(channel_lbl) )
+            self.lbl_Comp_lvl.pack(side=LEFT)
+            self.tb_Comp_lvl = customtkinter.CTkEntry(paramSpecFrame, textvariable=self.Comp_lvl)
+            self.tb_Comp_lvl.pack(side=LEFT, fill=BOTH, expand=1)
+
+            self.btn_start_acq = customtkinter.CTkButton(paramSpecFrame, text="Set", command=self.SetDAC)
+            self.btn_start_acq.pack(side=LEFT, fill=BOTH)
+
+        #Set button handle - send the command
+        def SetDAC(self):
+            tx_arr = self.CmdRespBuild.build_AMP_VREF_set_request(self.CH_num, self.Comp_lvl.get())
+            self.communication.transmitt_data(tx_arr)
+
     #GUI for HV supply control
     class HV_set:
         def __init__(self, master, HV_lbl, communication, CmdRespBuild):
