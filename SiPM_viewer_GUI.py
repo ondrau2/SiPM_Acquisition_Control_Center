@@ -73,6 +73,7 @@ acq_ctrl_box = ACQ_GUI.AcquisitionSetup(CtrlFrame, DataSave)
 
 ##Add the processing selection
 proc_type_sel = acq_ctrl_box.processingType(CtrlFrame, communication, MSG.CmdRespBuild)
+comp_type_sel = acq_ctrl_box.ComparatorInputSelection(CtrlFrame, communication, MSG.CmdRespBuild)
 
 ##Add the DAC control
 HV_suply = acq_ctrl_box.HV_set(CtrlFrame, 'HV: ', communication, MSG.CmdRespBuild)
@@ -152,6 +153,7 @@ def updateData():
 
     #Update the processing type
     proc_type_sel.UpdateProcessingType(MSG.CTRL_MSG.processingType)
+    comp_type_sel.UpdateProcessingType(MSG.CTRL_MSG.comparatorSelected)
 
     #Start again after 1000ms
     timer = root.after(1000, updateData)

@@ -45,6 +45,7 @@ class RxMsgID(Enum):
     measured_ch_B = 8       ## Measuremetn data for CH B (CH 2)
     measured_ch_C = 9       ## Measuremetn data for CH C (CH 3)
     HV_state = 10           ## State of the HV voltage supply (byte 0: on/off, byte1,2: real V*100)
+    CMP_SEL_ACK = 11        ## Acknowledge of comparator
 
 class TxMsgID(Enum):
     rx_invalid = 0		## Invalid 
@@ -62,6 +63,7 @@ class TxMsgID(Enum):
     AMP_VREF_A_set = 12		    ## AMP_VREF channel A voltage set 
     AMP_VREF_B_set = 13		    ## AMP_VREF channel B voltage set 
     AMP_VREF_C_set = 14		    ## AMP_VREF channel C voltage set 
+    CMP_SEL = 15                ## Select comparator
 
 class PulseProcesssingTypes(Enum):
     Independent = 0         ## Independent channels
@@ -69,6 +71,10 @@ class PulseProcesssingTypes(Enum):
     exponential_fit = 2 	## Fit exponential function 
     linear_fit = 3			## Not implemented 
     NN = 4					## Not implemented 
+
+class CompSelection(Enum):
+    Internal = 0
+    External = 1
 
 ###############################################################################
 #######################----DATA HANDLING CALSS-----############################

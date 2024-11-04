@@ -125,6 +125,37 @@ class AcquisitionSetup:
             
             self.cb_selProc.set(self.ProcType)
 
+    #GUI for processing type selection
+    class ComparatorInputSelection:
+        def __init__(self, master, communication, CmdRespBuild) -> None:
+            self.communication = communication
+            self.CmdRespBuild = CmdRespBuild
+
+            procTypeFrame = customtkinter.CTkFrame(master)
+            procTypeFrame.pack(side=TOP, fill=BOTH, pady=2)
+            self.ProcType = StringVar()
+            self.lbl_prompt = customtkinter.CTkLabel(procTypeFrame,text='Comparator selection: ')
+            self.lbl_prompt.pack(side=LEFT, fill=BOTH)
+            self.cb_selProc = customtkinter.CTkComboBox(procTypeFrame, variable=self.ProcType, command= self.CompTypeChanged)
+            self.cb_selProc.configure(values = ["Internal", "External"])
+            self.cb_selProc.configure(state = 'readonly')
+            self.cb_selProc.pack(side=RIGHT, fill=BOTH)
+            self.cb_selProc.bind('<<ComboBoxSelected>>', self.CompTypeChanged)
+
+        #Handle the selection - send the command
+        def CompTypeChanged(self, dummy):
+            procTypeSel = self.cb_selProc.get()
+            tx_arr = self.CmdRespBuild.build_comp_type_request(procTypeSel)
+            self.communication.transmitt_data(tx_arr)
+
+        def UpdateProcessingType(self, received):
+            if received == 0:   
+               self.ProcType = "Internal"
+            elif received == 1:   
+               self.ProcType = "External"
+            
+            self.cb_selProc.set(self.ProcType)
+
     #GUI for DAC voltage setting
     class DAC_set:
         def __init__(self, master, channel_lbl, channel_num, communication, CmdRespBuild):

@@ -38,6 +38,7 @@ class CTRL_MSG:
     processingType = 0
     HV_state = 0
     HV_value = 0
+    comparatorSelected = 0
 
 ##Handles the board alive variable
 def boardAliveWDG():
@@ -97,6 +98,9 @@ def handle_Rx_CTRL_Msg(header, data):
     elif(header == SerialMessage.RxMsgID.HV_state.value):
         CTRL_MSG.HV_state = data[0]
         CTRL_MSG.HV_value = ((np.uint8(data[2]) << 8 ) | np.uint8(data[1]))/100 
+
+    elif(header == SerialMessage.RxMsgID.CMP_SEL_ACK.value):
+        CTRL_MSG.comparatorSelected = data[0]
 
 
 ##Class with functions for control command packet build
@@ -228,6 +232,23 @@ class CmdRespBuild:
             msg.data[0] = SerialMessage.PulseProcesssingTypes.NN.value
         elif(type == 'Independent'):
             msg.data[0] = SerialMessage.PulseProcesssingTypes.Independent.value
+
+        msg.getCRC8()
+    
+        return msg.buildByteArr()
+    
+     #Build processing type change array
+    def build_comp_type_request(type):
+        msg = SerialMessage.SerialMessage()
+    
+        msg.startSymbol = 0x55
+    
+        msg.header = SerialMessage.TxMsgID.CMP_SEL
+    
+        if(type == 'Internal'):
+            msg.data[0] = SerialMessage.CompSelection.Internal.value
+        elif(type == 'External'):
+            msg.data[0] = SerialMessage.CompSelection.External.value
 
         msg.getCRC8()
     
