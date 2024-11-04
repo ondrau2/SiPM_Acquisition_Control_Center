@@ -62,9 +62,10 @@ class STM_serial:
 
     #Asynchronnous reception
     def COM_Receive_data_async(self, queue, stopEvent: Event):
-        RxMsg = SerialMessage.SerialMessage()
-
+        
+        
         while (1):
+            RxMsg = SerialMessage.SerialMessage()
             try:            
                 bytesToRead = self.ser.inWaiting()
                 if(bytesToRead > 0):
@@ -85,7 +86,6 @@ class STM_serial:
     ##Read from the queue and store to buffer             
     def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
 
-        #Measurement and control message buffers
         BUFFER_Meas = []
         
         BUFFER_Meas_A = []
@@ -96,9 +96,15 @@ class STM_serial:
         #Use global histogram object
         global GUI_hist
 
-        while True:
 
-            item = queue.get()
+        A_cnt = 0
+        B_cnt = 0
+        C_cnt = 0
+
+        while True:
+#Measurement and control message buffers
+            
+            item = queue.get(block=True, timeout=None)
 
             #Check if exists
             if item is None:
@@ -117,7 +123,7 @@ class STM_serial:
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_A.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas_A.append(measuredVal)
-
+                    A_cnt = A_cnt + 1
                     #Read the buffer when decent amount of data
                     if(len(BUFFER_Meas_A) >= 1):
                         self.DataSave.SaveBuffer(BUFFER_Meas_A, "_CH1")
@@ -126,6 +132,7 @@ class STM_serial:
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_B.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas_B.append(measuredVal)
+                    B_cnt = B_cnt + 1
 
                     #Read the buffer when decent amount of data
                     if(len(BUFFER_Meas_B) >= 1):
@@ -135,6 +142,7 @@ class STM_serial:
                 elif(item.header == SerialMessage.RxMsgID.measured_ch_C.value):
                     measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
                     BUFFER_Meas_C.append(measuredVal)
+                    C_cnt = C_cnt + 1
 
                     #Read the buffer when decent amount of data
                     if(len(BUFFER_Meas_C) >= 1):
@@ -144,7 +152,9 @@ class STM_serial:
                 else:
                     #Control message - handle directly
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
-                
+
+                #queue.task_done()
+
             #Check if stop requested
             if(stopEvent.is_set()):
                 break
