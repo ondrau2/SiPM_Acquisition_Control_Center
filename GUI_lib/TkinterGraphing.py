@@ -57,15 +57,19 @@ class Tkinter_Graphing:
         #Eventually adjust binning
         if(self.binAdjust.get() != 1):
             i = 0
+            ii = 0
             x_i = x*self.binAdjust.get()
             y_i = np.zeros(int(np.size(x)))
             for value in y:
                 #assuming sorted array
-                if(value<self.binAdjust.get()*i):  
+                if(ii%self.binAdjust.get() != 0):#value<self.binAdjust.get()*i):  
                    y_i[i] = y_i[i] + value
-                   x_i[i] = i*self.binAdjust.get()
                 else:
                    i =  i + 1
+                   y_i[i] = y_i[i] + value
+
+                ii = ii + 1
+
 
             Im = self.ax.plot(x_i, y_i)
         else: 
