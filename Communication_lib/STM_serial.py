@@ -9,7 +9,7 @@ import datetime
 import os
 from time import sleep
 from random import random
-from threading import Thread, Event
+from threading import Thread, Event, Lock
 from queue import Queue
 from Histogram import *
 import re
@@ -20,6 +20,13 @@ import Communication_lib.CTRL_MSG as CTRL_MSG
 
 ##Stop the async Rx
 stopEvent = Event()
+stopEvent2 = Event()
+
+# Define locks for each buffer
+buffer_meas_lock = Lock()
+buffer_A_lock = Lock()
+buffer_B_lock = Lock()
+buffer_C_lock = Lock()
 
 """@dataclass
 class detector_event:
@@ -84,88 +91,73 @@ class STM_serial:
                 break
 
     ##Read from the queue and store to buffer             
-    def COM_Read_Data_From_Queue(self, queue, GUI_Queue,stopEvent: Event):
-
+    def COM_Read_Data_From_Queue(self, queue, GUI_Queue, stopEvent2: Event):
         BUFFER_Meas = []
-        
         BUFFER_Meas_A = []
         BUFFER_Meas_B = []
         BUFFER_Meas_C = []
-        BUFFER_CTRL = []
-
-        #Use global histogram object
         global GUI_hist
-
-
-        A_cnt = 0
-        B_cnt = 0
-        C_cnt = 0
-
+    
         while True:
-#Measurement and control message buffers
-            
-            item = queue.get(block=True, timeout=None)
 
-            #Check if exists
-            if item is None:
+            #Check if stop requested
+            if(stopEvent2.is_set()):
                 break
-            else:
-                #Check if message is measurement
-                if(item.header == SerialMessage.RxMsgID.measured_pulse_val.value):
-                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
-                    BUFFER_Meas.append(measuredVal)
 
-                    #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas) >= 1):
+            try:
+                item = queue.get(block=True, timeout=1)
+            except:
+                item = SerialMessage.SerialMessage()
+
+            if item.header == SerialMessage.RxMsgID.measured_pulse_val.value:
+                with buffer_meas_lock:
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) | np.uint8(item.data[0])
+                    BUFFER_Meas.append(measuredVal)
+                    
+                    if len(BUFFER_Meas) >= 1:
                         self.DataSave.SaveBuffer(BUFFER_Meas, "_tot")
                         GUI_hist.addToHist(BUFFER_Meas)
                         BUFFER_Meas.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_A.value):
-                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+            elif item.header == SerialMessage.RxMsgID.measured_ch_A.value:
+                with buffer_A_lock:
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) | np.uint8(item.data[0])
                     BUFFER_Meas_A.append(measuredVal)
-                    A_cnt = A_cnt + 1
-                    #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas_A) >= 1):
+    
+                    if len(BUFFER_Meas_A) >= 1:
                         self.DataSave.SaveBuffer(BUFFER_Meas_A, "_CH1")
                         GUI_hist.addToHist(BUFFER_Meas_A)
                         BUFFER_Meas_A.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_B.value):
-                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+            elif item.header == SerialMessage.RxMsgID.measured_ch_B.value:
+                with buffer_B_lock:
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) | np.uint8(item.data[0])
                     BUFFER_Meas_B.append(measuredVal)
-                    B_cnt = B_cnt + 1
-
-                    #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas_B) >= 1):
+    
+                    if len(BUFFER_Meas_B) >= 1:
                         self.DataSave.SaveBuffer(BUFFER_Meas_B, "_CH2")
                         GUI_hist.addToHist(BUFFER_Meas_B)
                         BUFFER_Meas_B.clear()
-                elif(item.header == SerialMessage.RxMsgID.measured_ch_C.value):
-                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) |np.uint8(item.data[0])
+            elif item.header == SerialMessage.RxMsgID.measured_ch_C.value:
+                with buffer_C_lock:
+                    measuredVal = (np.uint8(item.data[3])<<24 ) | (np.uint8(item.data[2])<<16 ) | (np.uint8(item.data[1])<<8 ) | np.uint8(item.data[0])
                     BUFFER_Meas_C.append(measuredVal)
-                    C_cnt = C_cnt + 1
-
-                    #Read the buffer when decent amount of data
-                    if(len(BUFFER_Meas_C) >= 1):
+    
+                    if len(BUFFER_Meas_C) >= 1:
                         self.DataSave.SaveBuffer(BUFFER_Meas_C, "_CH3")
                         GUI_hist.addToHist(BUFFER_Meas_C)
                         BUFFER_Meas_C.clear()
-                else:
-                    #Control message - handle directly
-                    CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
+            else:
+                CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
 
-                #queue.task_done()
-
-            #Check if stop requested
-            if(stopEvent.is_set()):
-                break
+            
 
     ##Start the reception
     def COM_Receive_Start(self, GUI_queue):
         #Create the shared queue
         queue = Queue()
         stopEvent.clear()
+        stopEvent2.clear()
         #Create the consumer
-        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue, stopEvent, ))
+        my_consumer = Thread(target=self.COM_Read_Data_From_Queue, args=( queue,GUI_queue, stopEvent2, ))
         my_consumer.start()
         #Start the rx
         my_producer = Thread(target=self.COM_Receive_data_async, args=(queue,stopEvent, ))
@@ -174,3 +166,4 @@ class STM_serial:
     #Stop the async receive
     def COM_Receive_Stop(self):
         stopEvent.set()
+        stopEvent2.set()
