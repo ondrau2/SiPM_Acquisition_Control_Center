@@ -102,9 +102,16 @@ class UDP_comm:
         C_cnt = 0
 
         while True:
+            # Check if stop requested first
+            if stopEvent.is_set():
+                break
+                
             # Measurement and control message buffers
-            
-            item = queue.get(block=True, timeout=None)
+            try:
+                item = queue.get(block=True, timeout=0.5)
+            except:
+                # Timeout - check stop event and continue
+                continue
 
             # Check if exists
             if item is None:
@@ -152,10 +159,6 @@ class UDP_comm:
                 else:
                     # Control message - handle directly
                     CTRL_MSG.handle_Rx_CTRL_Msg(item.header, item.data)
-
-            # Check if stop requested
-            if stopEvent.is_set():
-                break
 
     ##Start the reception
     def UDP_Receive_Start(self, GUI_queue):
