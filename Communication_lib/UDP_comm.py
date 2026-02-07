@@ -26,11 +26,30 @@ class UDP_comm:
     #Connect to UDP
     def UDP_connect(self):
         try:
+            if self.sock:
+                self.sock.close()
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.sock.bind((self.UDP_IP, self.UDP_PORT))
             self.sock.settimeout(1.0)  # 1 second timeout for checking stop event
             self.connected = True
             return True
+        except OSError as e:
+            print(f"UDP connection error: {e}")
+            # WinError 10049: The requested address is not valid in its context
+            if hasattr(e, 'winerror') and e.winerror == 10049:
+                print(f"IP {self.UDP_IP} invalid for local bind. Trying 0.0.0.0")
+                try:
+                    self.sock.close()
+                    self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    self.sock.bind(("0.0.0.0", self.UDP_PORT))
+                    self.sock.settimeout(1.0)
+                    self.connected = True
+                    return True
+                except Exception as e2:
+                    print(f"UDP fallback connection error: {e2}")
+
+            self.connected = False
+            return False
         except Exception as e:
             print(f"UDP connection error: {e}")
             self.connected = False

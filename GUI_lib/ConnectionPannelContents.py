@@ -35,7 +35,7 @@ class ConnectionPannelContents:
         self.cb_selCOM.bind('<<ComboBoxSelected>>', self.COM_changed)
 
         #UDP-specific widgets (initially hidden)
-        self.lbl_UDP_IP = customtkinter.CTkLabel(master, text='IP: ')
+        self.lbl_UDP_IP = customtkinter.CTkLabel(master, text='Bind IP: ')
         self.entry_UDP_IP = customtkinter.CTkEntry(master, width=100)
         self.entry_UDP_IP.insert(0, "0.0.0.0")
         
