@@ -70,9 +70,31 @@ UDP packets are processed through the same pipeline as serial packets:
 - Multiple 7-byte packets can be received in a single UDP datagram
 - The same message validation and CRC checking applies to UDP packets
 - UDP uses the same histogram and data storage mechanisms as serial
+- Thread-safe implementation with instance-level stop events
+- Non-blocking queue operations with timeout for clean shutdown
+
+## Testing UDP Implementation
+
+A test script `udp_test_sender.py` is provided to test UDP packet reception:
+
+```bash
+# Send test packets to localhost
+python3 udp_test_sender.py 127.0.0.1 5005
+
+# Send test packets to a different IP/port
+python3 udp_test_sender.py 192.168.1.100 6000
+```
+
+The test script will send 10 measurement packets with incrementing values (1000-1900) to verify:
+- UDP socket connection
+- Packet reception and parsing
+- CRC validation
+- Histogram updates
+- Device status indication
 
 ## Default Configuration
 - **UDP IP**: 0.0.0.0 (listen on all network interfaces)
 - **UDP Port**: 5005
 - **Packet Size**: 7 bytes
 - **Socket Timeout**: 1 second
+- **Queue Timeout**: 0.5 seconds
