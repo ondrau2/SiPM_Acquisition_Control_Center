@@ -9,8 +9,8 @@ from Histogram import *
 ##UDP reception class
 class UDP_comm:
     def __init__(self, DataSave):
-        self.UDP_IP = "0.0.0.0"
-        self.UDP_PORT = 5005
+        self.UDP_IP = "169.254.66.88"
+        self.UDP_PORT = 5000
         self.sock = None
         self.DataSave = DataSave
         self.connected = False
