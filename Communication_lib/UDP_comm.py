@@ -6,9 +6,6 @@ import Communication_lib.SerialMessage as SerialMessage
 import Communication_lib.CTRL_MSG as CTRL_MSG
 from Histogram import *
 
-##Stop the async Rx
-stopEvent = Event()
-
 ##UDP reception class
 class UDP_comm:
     def __init__(self, DataSave):
@@ -17,6 +14,9 @@ class UDP_comm:
         self.sock = None
         self.DataSave = DataSave
         self.connected = False
+        self.stopEvent = Event()
+        self.producer_thread = None
+        self.consumer_thread = None
         
     #Set UDP parameters
     def set_UDP_params(self, ip, port):
@@ -161,14 +161,21 @@ class UDP_comm:
     def UDP_Receive_Start(self, GUI_queue):
         # Create the shared queue
         queue = Queue()
-        stopEvent.clear()
+        self.stopEvent.clear()
         # Create the consumer
-        my_consumer = Thread(target=self.UDP_Read_Data_From_Queue, args=(queue, GUI_queue, stopEvent,))
-        my_consumer.start()
+        self.consumer_thread = Thread(target=self.UDP_Read_Data_From_Queue, args=(queue, GUI_queue, self.stopEvent,))
+        self.consumer_thread.start()
         # Start the rx
-        my_producer = Thread(target=self.UDP_Receive_data_async, args=(queue, stopEvent,))
-        my_producer.start()
+        self.producer_thread = Thread(target=self.UDP_Receive_data_async, args=(queue, self.stopEvent,))
+        self.producer_thread.start()
 
     # Stop the async receive
     def UDP_Receive_Stop(self):
-        stopEvent.set()
+        self.stopEvent.set()
+        # Wait for threads to complete with timeout
+        if self.producer_thread is not None:
+            self.producer_thread.join(timeout=2.0)
+            self.producer_thread = None
+        if self.consumer_thread is not None:
+            self.consumer_thread.join(timeout=2.0)
+            self.consumer_thread = None

@@ -149,7 +149,7 @@ class ConnectionPannelContents:
     #Handle UDP connection
     def _connect_udp(self):
         if self.udp_communication is None:
-            print("UDP communication not initialized")
+            self.lbl_device_state.configure(text='UDP not available')
             return
         
         #Check the status
@@ -160,20 +160,29 @@ class ConnectionPannelContents:
             try:
                 ip = self.entry_UDP_IP.get()
                 port = int(self.entry_UDP_PORT.get())
+                
+                # Validate port range
+                if port < 1 or port > 65535:
+                    self.lbl_device_state.configure(text='Invalid port (1-65535)')
+                    return
+                
                 self.udp_communication.set_UDP_params(ip, port)
                 
                 if self.udp_communication.UDP_connect():
                     self.btn_Connect.configure(text="Close")
                     self.udp_communication.UDP_Receive_Start(self.gui_queue)
+                    self.lbl_device_state.configure(text='UDP connected')
                 else:
                     self.btn_Connect.configure(text="Connect")
+                    self.lbl_device_state.configure(text='UDP connection failed')
             except ValueError:
-                print("Invalid port number")
+                self.lbl_device_state.configure(text='Invalid port number')
         else:
             # Connected - close
             self.udp_communication.UDP_Receive_Stop()
             self.udp_communication.UDP_close()
             self.btn_Connect.configure(text="Connect")
+            self.lbl_device_state.configure(text='UDP disconnected')
 
     #COM port combo box change handler
     def COM_changed(self, port):
