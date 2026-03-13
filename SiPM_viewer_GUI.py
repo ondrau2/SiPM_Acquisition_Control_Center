@@ -11,6 +11,7 @@ import os
 import GUI_lib.ConnectionPannelContents as CONN_GUI
 import GUI_lib.AcquisitionSetup as ACQ_GUI
 import Communication_lib.STM_serial as SERIAL
+import Communication_lib.UDP_comm as UDP
 from Histogram import *
 import Communication_lib.MeasStore as Storage
 import Communication_lib.CTRL_MSG as MSG
@@ -37,8 +38,9 @@ root.title("SiPM Acquisition Control")
 
 ##Object handeling data saving
 DataSave = Storage.MeasStore(os.path.expanduser('~/Documents'))
-##Communication object
+##Communication objects
 communication = SERIAL.STM_serial(115200, DataSave)
+udp_communication = UDP.UDP_comm(DataSave)
 ##Queue for gui data handling
 gui_queue = SERIAL.Queue()
 ##Histogram array
@@ -117,7 +119,7 @@ acqBtn = acq_ctrl_box.acquisitionButton(CtrlFrame, communication, MSG.CmdRespBui
 
 ################################################################################################
 ###############################-----CONNECTION PANEL-----#######################################
-conn_ctrl_box = CONN_GUI.ConnectionPannelContents(ConnectionPannel_Frame, communication, gui_queue)
+conn_ctrl_box = CONN_GUI.ConnectionPannelContents(ConnectionPannel_Frame, communication, gui_queue, udp_communication)
 
 ################################################################################################
 ####################################-----GUI REFRESH-----#######################################
